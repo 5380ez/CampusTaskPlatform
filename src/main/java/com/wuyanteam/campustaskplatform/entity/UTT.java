@@ -2,6 +2,7 @@ package com.wuyanteam.campustaskplatform.entity;
 
 public class UTT
 {
+
     private int uid;
     private String username;
     private String password;

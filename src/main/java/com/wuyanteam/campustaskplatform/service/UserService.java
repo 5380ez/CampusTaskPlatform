@@ -6,5 +6,7 @@ import com.wuyanteam.campustaskplatform.entity.User;
 
 public interface UserService extends MPJDeepService<User>
 {
-
+    User LoginService(String username, String password);
+    User RegisterService(User user);
+    User InfoService(String token);
 }

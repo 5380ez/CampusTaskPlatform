@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 
 @RestController
+@CrossOrigin //允许该控制器跨域
 @RequestMapping("/availabletask")
 public class AvailableTaskController {
 
@@ -31,7 +32,7 @@ public class AvailableTaskController {
     private IPage getTasks(String campus, String sex, int page, @RequestParam(defaultValue = "exp")String sortOrder, @RequestParam(defaultValue = "true")boolean isDesc, String keyword) {
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
-                .select("username", "sex", "`level`")
+                .select("username", "sex", "`level`","`user`.id as uid")
                 .select("publish_time", "reward", "start_address", "end_address", "due_time", "title", "campus")
                 .innerJoin("`user` on publisher_id = `user`.id")
                 .eq("state", "un-taken");
