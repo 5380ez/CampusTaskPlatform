@@ -1,6 +1,9 @@
 package com.wuyanteam.campustaskplatform.entity;
 
 import lombok.Data;
+
+import java.sql.Timestamp;
+
 @Data
 public class Message
 {
@@ -8,6 +11,6 @@ public class Message
     private int senderId;
     private int receiverId;
     private String content;
-    private String sendTime;
+    private Timestamp sendTime;
     private int taskId;
 }

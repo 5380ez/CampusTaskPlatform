@@ -9,6 +9,7 @@ import com.wuyanteam.campustaskplatform.utils.JWTUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
         if (user != null) {
             Date now = new Date();
             SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            user.setLastLoginTime(ft.format(now));
+            user.setLastLoginTime(Timestamp.valueOf(ft.format(now)));
             user=userDao.save(user);
             user.setPassword("");
         }
@@ -45,9 +46,9 @@ public class UserServiceImpl implements UserService {
             user.setExp(0);
             user.setLevel(1);
             Date now = new Date();
-            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            user.setAccCrtTime(ft.format(now));
-            user.setLastLoginTime(ft.format(now));
+            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            user.setAccCrtTime(Timestamp.valueOf(ft.format(now)));
+            user.setLastLoginTime(Timestamp.valueOf(ft.format(now)));
             user.setLikeCount(0);
             user.setTakeNum(0);
             user.setPublishNum(0);
@@ -71,8 +72,8 @@ public class UserServiceImpl implements UserService {
             }
             User user = userDao.findByUsername(username);
             Date IssuedAt = JWTUtils.getClaimsByToken(token).getIssuedAt();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            if (simpleDateFormat.format(IssuedAt).compareTo(user.getLastLoginTime()) == 0) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            if (simpleDateFormat.format(IssuedAt).compareTo(String.valueOf(user.getLastLoginTime())) == 0) {
                 System.out.println("Token is valid.");
                 return user;
             } else {

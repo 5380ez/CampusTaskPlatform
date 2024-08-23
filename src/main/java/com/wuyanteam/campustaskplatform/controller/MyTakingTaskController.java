@@ -20,17 +20,17 @@ public class MyTakingTaskController {
 
     // 分页查询
     @PostMapping("/{state}")
-    public IPage myTakingTask(int myId, int page, String sortRule, boolean isDesc, @PathVariable String state) {
+    public IPage myTakingTask(Integer myId, Integer page, String sortRule, boolean isDesc, @PathVariable String state) {
         return getTasks(myId, page, sortRule, isDesc, state, null);
     }
 
     // 搜索
     @PostMapping("/search/{state}")
-    public IPage searchTakingTask(int myId, int page, String sortRule, boolean isDesc, @PathVariable String state, String keyword) {
+    public IPage searchTakingTask(Integer myId, Integer page, String sortRule, boolean isDesc, @PathVariable String state, String keyword) {
         return getTasks(myId, page, sortRule, isDesc, state, keyword);
     }
 
-    private IPage getTasks(int myId, int page, @RequestParam(defaultValue = "reward")String sortRule, @RequestParam(defaultValue = "true")boolean isDesc, String state, String keyword) {
+    private IPage getTasks(Integer myId, Integer page, @RequestParam(defaultValue = "reward")String sortRule, @RequestParam(defaultValue = "true")boolean isDesc, String state, String keyword) {
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
                 .select("reward", "start_address", "end_address", "due_time", "title")
