@@ -1,6 +1,12 @@
 package com.wuyanteam.campustaskplatform.entity;
 
+import javax.persistence.*;
+
+@Table(name="user")
+@Entity
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String username;
     private String password;
@@ -10,7 +16,6 @@ public class User {
     private int stuId;
     private int exp;
     private int level;
-    private String campus;
     private int likeCount;
     private String realName;
     private String address;
@@ -96,14 +101,6 @@ public class User {
 
     public void setLevel(int level) {
         this.level = level;
-    }
-
-    public String getCampus() {
-        return campus;
-    }
-
-    public void setCampus(String campus) {
-        this.campus = campus;
     }
 
     public int getLikeCount() {
@@ -206,7 +203,6 @@ public class User {
                 ", stuId=" + stuId +
                 ", exp=" + exp +
                 ", level=" + level +
-                ", campus='" + campus + '\'' +
                 ", likeCount=" + likeCount +
                 ", realName='" + realName + '\'' +
                 ", address='" + address + '\'' +

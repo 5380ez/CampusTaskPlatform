@@ -62,20 +62,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User InfoService(String token) {//通过token返回user
+    public User InfoService(String token) {
         if (JWTUtils.verifyToken(token)) {
             String username = JWTUtils.getClaimsByToken(token).getSubject();
             if (username == null) {
+                System.out.println("Username is null.");
                 return null;
             }
-        User user = userDao.findByUsername(username);
-        Date IssuedAt=JWTUtils.getClaimsByToken(token).getIssuedAt();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        if(simpleDateFormat.format(IssuedAt).compareTo(user.getLastLoginTime())==0){//当最后登录时间等于token刷新时间时，token才有效，避免重复登录时用户之前生成的ID还有效的情况发生
-            return user;
+            User user = userDao.findByUsername(username);
+            Date IssuedAt = JWTUtils.getClaimsByToken(token).getIssuedAt();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            if (simpleDateFormat.format(IssuedAt).compareTo(user.getLastLoginTime()) == 0) {
+                System.out.println("Token is valid.");
+                return user;
+            } else {
+                System.out.println("Token is invalid.");
+                return null;
             }
+        } else {
+            System.out.println("Token verification failed.");
+            return null;
         }
-        return null;
     }
 
     @Override

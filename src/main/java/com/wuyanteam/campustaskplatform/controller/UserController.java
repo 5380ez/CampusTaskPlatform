@@ -23,10 +23,11 @@ public class UserController {
     @Resource
     private UserService userService;
     @PostMapping("/user/info")
-    public List myInfo(int myId)
+    public List myInfo(String token)
     {
         QueryWrapper<User> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",myId)
+        System.out.println(userService.InfoService(token).getId());
+        queryWrapper.eq("id",userService.InfoService(token).getId())
                 .select("id","username","sex","age","stu_id","exp","level","like_count",
                 "real_name","address","balance","take_num","publish_num","qq","email","phone");
         return userMapper.selectList(queryWrapper);
