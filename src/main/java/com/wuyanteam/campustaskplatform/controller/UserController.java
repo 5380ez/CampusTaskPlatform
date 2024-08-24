@@ -2,7 +2,9 @@ package com.wuyanteam.campustaskplatform.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.wuyanteam.campustaskplatform.entity.LoginDTO;
 import com.wuyanteam.campustaskplatform.entity.User;
+import com.wuyanteam.campustaskplatform.entity.UserDTO;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.JWTUtils;
@@ -22,7 +24,7 @@ public class UserController {
     //用户个人信息
     @Resource
     private UserService userService;
-    @PostMapping("/user/info")
+    @PostMapping("/user")
     public List myInfo(String token)
     {
         QueryWrapper<User> queryWrapper = new QueryWrapper();
@@ -34,47 +36,41 @@ public class UserController {
     }
     //修改用户信息
     @PostMapping("/user/setting")
-    public ResponseEntity<Object> setting(@RequestParam int myId,
-                                          @RequestParam(required = false) String username,
-                                          @RequestParam(required = false) Integer age,
-                                          @RequestParam(required = false) String address,
-                                          @RequestParam(required = false) String qq,
-                                          @RequestParam(required = false) String email,
-                                          @RequestParam(required = false) String phone) {
+    public ResponseEntity<Object> setting(String token, @RequestBody UserDTO userDTO) {
 
         // 验证 username 是否为空、仅包含空白字符或长度不符合要求
-        if (username != null) {
-            String trimmedUsername = username.trim();
+        if (userDTO.getUsername() != null) {
+            String trimmedUsername = userDTO.getUsername().trim();
             if (trimmedUsername.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("用户名不能为空");
             }
             if (trimmedUsername.length() < 3 || trimmedUsername.length() > 10) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("用户名长度必须在3到10个字符之间");
             }
-            username = trimmedUsername; // 使用已修剪的 username
+            userDTO.setUsername(trimmedUsername); // 使用已修剪的 username
         }
 
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", myId);
+        updateWrapper.eq("id", userService.InfoService(token).getId());
 
         // 检查参数是否为空，如果不为空则进行更新
-        if (username != null) {
-            updateWrapper.set("username", username);
+        if (userDTO.getUsername() != null) {
+            updateWrapper.set("username", userDTO.getUsername());
         }
-        if (age != null) {
-            updateWrapper.set("age", age);
+        if (userDTO.getAge() != null) {
+            updateWrapper.set("age", userDTO.getAge());
         }
-        if (address != null) {
-            updateWrapper.set("address", address);
+        if (userDTO.getAddress() != null) {
+            updateWrapper.set("address", userDTO.getAddress());
         }
-        if (qq != null) {
-            updateWrapper.set("qq", qq);
+        if (userDTO.getQq() != null) {
+            updateWrapper.set("qq", userDTO.getQq());
         }
-        if (email != null) {
-            updateWrapper.set("email", email);
+        if (userDTO.getEmail() != null) {
+            updateWrapper.set("email", userDTO.getEmail());
         }
-        if (phone != null) {
-            updateWrapper.set("phone", phone);
+        if (userDTO.getPhone() != null) {
+            updateWrapper.set("phone", userDTO.getPhone());
         }
         // 执行更新操作
         int row = userMapper.update(null, updateWrapper);
@@ -85,10 +81,10 @@ public class UserController {
         }
     }
     @PostMapping("/login")
-    public Result<User> login(@RequestParam String username, @RequestParam String password) {
-        User user=userService.LoginService(username,password);
+    public Result<User> login(@RequestBody LoginDTO loginDTO) {
+        User user=userService.LoginService(loginDTO.getUsername(),loginDTO.getPassword());
         if(user!=null){
-            String token= String.valueOf(JWTUtils.generateToken(username));
+            String token= String.valueOf(JWTUtils.generateToken(loginDTO.getUsername()));
             return Result.success(user,token);
         }else{
             return Result.error("123","账号或密码错误!");

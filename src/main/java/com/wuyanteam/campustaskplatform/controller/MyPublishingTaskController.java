@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
 import com.wuyanteam.campustaskplatform.entity.Task;
 import com.wuyanteam.campustaskplatform.entity.UTT;
-import com.wuyanteam.campustaskplatform.entity.UserDTO;
+import com.wuyanteam.campustaskplatform.entity.MyTaskDTO;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 
 @RestController
 @CrossOrigin //允许该控制器跨域
-@RequestMapping("/mypublishingtask")
+@RequestMapping("/mypPublishingTask")
 public class MyPublishingTaskController {
 
     @Resource
@@ -21,14 +21,14 @@ public class MyPublishingTaskController {
 
     // 分页查询
     @PostMapping("/{state}")
-    public IPage myPublishingTask(UserDTO userDTO) {
-        return getTasks(userDTO.getMyId(), userDTO.getPage(),userDTO.getSortRule(),userDTO.isDesc(),userDTO.getState(),null);
+    public IPage myPublishingTask(MyTaskDTO myTaskDTO) {
+        return getTasks(myTaskDTO.getMyId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(),null);
     }
 
     // 搜索
     @PostMapping("/search/{state}")
-    public IPage searchPublishingTask(UserDTO userDTO) {
-        return getTasks(userDTO.getMyId(), userDTO.getPage(),userDTO.getSortRule(),userDTO.isDesc(),userDTO.getState(),userDTO.getKeyword());
+    public IPage searchPublishingTask(MyTaskDTO myTaskDTO) {
+        return getTasks(myTaskDTO.getMyId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(), myTaskDTO.getKeyword());
     }
 
     private IPage getTasks(int myId, int page, @RequestParam(defaultValue = "publish_time")String sortRule, @RequestParam(defaultValue = "true")boolean isDesc, String state, String keyword) {

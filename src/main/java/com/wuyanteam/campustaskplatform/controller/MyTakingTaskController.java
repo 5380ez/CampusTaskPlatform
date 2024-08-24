@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
 import com.wuyanteam.campustaskplatform.entity.Task;
 import com.wuyanteam.campustaskplatform.entity.UTT;
-import com.wuyanteam.campustaskplatform.entity.UserDTO;
+import com.wuyanteam.campustaskplatform.entity.MyTaskDTO;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +21,14 @@ public class MyTakingTaskController {
 
     // 分页查询
     @PostMapping("/{state}")
-    public IPage myTakingTask(UserDTO userDTO) {
-        return getTasks(userDTO.getMyId(), userDTO.getPage(),userDTO.getSortRule(),userDTO.isDesc(),userDTO.getState(),null);
+    public IPage myTakingTask(MyTaskDTO myTaskDTO) {
+        return getTasks(myTaskDTO.getMyId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(),null);
     }
 
     // 搜索
     @PostMapping("/search/{state}")
-    public IPage searchTakingTask(UserDTO userDTO) {
-        return getTasks(userDTO.getMyId(), userDTO.getPage(),userDTO.getSortRule(),userDTO.isDesc(),userDTO.getState(),userDTO.getKeyword());
+    public IPage searchTakingTask(MyTaskDTO myTaskDTO) {
+        return getTasks(myTaskDTO.getMyId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(), myTaskDTO.getKeyword());
     }
 
     private IPage getTasks(Integer myId, Integer page,String sortRule,boolean isDesc, String state, String keyword) {
