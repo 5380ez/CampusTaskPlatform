@@ -19,6 +19,7 @@ import java.util.Map;
 
 
 @RestController
+@CrossOrigin
 @RequestMapping("/taskinformation")
 public class TaskController {
 

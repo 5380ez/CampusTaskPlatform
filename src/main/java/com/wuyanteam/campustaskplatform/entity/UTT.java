@@ -26,7 +26,7 @@ public class UTT
     private int likeCount;
     private String realName;
     private String address;
-    private int balance;
+    private float balance;
     private Timestamp lastLoginTime;
     private int takeNum;
     private int publishNum;
@@ -42,7 +42,7 @@ public class UTT
     private Timestamp publishTime;
     private String state;
     private Timestamp takeTime;
-    private int reward;
+    private float reward;
     private String startAddress;
     private String endAddress;
     private Timestamp dueTime;

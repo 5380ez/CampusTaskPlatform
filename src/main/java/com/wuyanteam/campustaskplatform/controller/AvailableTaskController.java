@@ -21,18 +21,17 @@ public class AvailableTaskController {
 
     @PostMapping("/task")
     public IPage availableTask(@RequestBody TaskDTO taskDTO) {
-        System.out.println("性别:"+taskDTO.getSex());
-        System.out.println("分页:"+taskDTO.getPage());
-        return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.getIsDesc(), null);
+        return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.isDesc(), null);
     }
 
     // 新增搜索方法
     @PostMapping("/search")
-    public IPage searchAvailableTask(String campus, String sex, int page, String sortOrder,  boolean isDesc, @RequestParam String keyword) {
-        return getTasks(campus, sex, page, sortOrder, isDesc, keyword);
+    public IPage searchAvailableTask(@RequestBody TaskDTO taskDTO) {
+        return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.isDesc(), taskDTO.getKeyword());
     }
 
-    private IPage getTasks(String campus, String sex, int page, @RequestParam(defaultValue = "exp")String sortOrder, @RequestParam(defaultValue = "true")boolean isDesc, String keyword) {
+    private IPage getTasks(String campus, String sex, int page, String sortOrder, boolean isDesc, String keyword) {
+        System.out.println("done");
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
                 .select("username", "sex", "`level`","`user`.id as uid")
@@ -47,7 +46,6 @@ public class AvailableTaskController {
                     .or().like("start_address", keyword)
                     .or().like("end_address", keyword));
         }
-
         if (campus != null && !campus.isEmpty()) {
             queryWrapper.eq("campus", campus);
         }

@@ -23,7 +23,7 @@ public class User {
     private int likeCount;
     private String realName;
     private String address;
-    private int balance;
+    private float balance;
     private Timestamp lastLoginTime;
     private int takeNum;
     private int publishNum;

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
 import com.wuyanteam.campustaskplatform.entity.Task;
 import com.wuyanteam.campustaskplatform.entity.UTT;
+import com.wuyanteam.campustaskplatform.entity.UserDTO;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +21,14 @@ public class MyPublishingTaskController {
 
     // 分页查询
     @PostMapping("/{state}")
-    public IPage myPublishingTask(int myId, int page,  String sortRule, boolean isDesc, @PathVariable String state) {
-        return getTasks(myId, page, sortRule, isDesc, state, null);
+    public IPage myPublishingTask(UserDTO userDTO) {
+        return getTasks(userDTO.getMyId(), userDTO.getPage(),userDTO.getSortRule(),userDTO.isDesc(),userDTO.getState(),null);
     }
 
     // 搜索
     @PostMapping("/search/{state}")
-    public IPage searchPublishingTask(int myId, int page, String sortRule, boolean isDesc, @PathVariable String state, String keyword) {
-        return getTasks(myId, page, sortRule, isDesc, state, keyword);
+    public IPage searchPublishingTask(UserDTO userDTO) {
+        return getTasks(userDTO.getMyId(), userDTO.getPage(),userDTO.getSortRule(),userDTO.isDesc(),userDTO.getState(),userDTO.getKeyword());
     }
 
     private IPage getTasks(int myId, int page, @RequestParam(defaultValue = "publish_time")String sortRule, @RequestParam(defaultValue = "true")boolean isDesc, String state, String keyword) {
