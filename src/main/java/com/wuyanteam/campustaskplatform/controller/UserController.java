@@ -23,7 +23,7 @@ public class UserController {
     @Resource
     private UserService userService;
     @PostMapping("/user/info")
-    public List myInfo(String token)
+    /*public List myInfo(String token)
     {
         QueryWrapper<User> queryWrapper = new QueryWrapper();
         System.out.println(userService.InfoService(token).getId());
@@ -31,7 +31,15 @@ public class UserController {
                 .select("id","username","sex","age","stu_id","exp","level","like_count",
                 "real_name","address","balance","take_num","publish_num","qq","email","phone");
         return userMapper.selectList(queryWrapper);
+    }*/
+    public Result<User> muInfo(String token){
+        if(userService.InfoService(token)==null){
+            return Result.error("123","token已失效");
+        }
+        return Result.success(userService.InfoService(token));
     }
+
+
     //修改用户信息
     @PostMapping("/user/setting")
     public ResponseEntity<Object> setting(@RequestParam int myId,
