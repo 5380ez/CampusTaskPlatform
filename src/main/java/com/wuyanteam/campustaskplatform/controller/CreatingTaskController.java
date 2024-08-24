@@ -7,6 +7,7 @@ import com.wuyanteam.campustaskplatform.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -22,8 +23,8 @@ public class CreatingTaskController {
     @Resource
     private UserService userService;
     @PostMapping("/task")
-    public String createTask(String token,@RequestBody Task task) {
-
+    public String createTask(HttpServletRequest request, @RequestBody Task task) {
+        String token = request.getHeader("Authorization");
         // 验证 reward 是否在有效范围内
         if (task.getReward() <= 0) {
             return "Failed to create task: Reward too small.";

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 @RestController
 @CrossOrigin //允许该控制器跨域
@@ -25,38 +26,24 @@ public class UserController {
     @Resource
     private UserService userService;
     @PostMapping("/user")
-    public List myInfo(String token)
-    {
-        QueryWrapper<User> queryWrapper = new QueryWrapper();
-        System.out.println(userService.InfoService(token).getId());
-        queryWrapper.eq("id",userService.InfoService(token).getId())
-                .select("id","username","sex","age","stu_id","exp","level","like_count",
-                "real_name","address","balance","take_num","publish_num","qq","email","phone");
-        return userMapper.selectList(queryWrapper);
+    public Result<User> muInfo(HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        if(userService.InfoService(token)==null){
+            return Result.error("123","token已失效");
+        }
+        return Result.success(userService.InfoService(token));
     }
     //修改用户信息
     @PostMapping("/user/setting")
-    public ResponseEntity<Object> setting(String token, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<Object> setting(HttpServletRequest request, @RequestBody UserDTO userDTO) {
 
         // 验证 username 是否为空、仅包含空白字符或长度不符合要求
-        if (userDTO.getUsername() != null) {
-            String trimmedUsername = userDTO.getUsername().trim();
-            if (trimmedUsername.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("用户名不能为空");
-            }
-            if (trimmedUsername.length() < 3 || trimmedUsername.length() > 10) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("用户名长度必须在3到10个字符之间");
-            }
-            userDTO.setUsername(trimmedUsername); // 使用已修剪的 username
-        }
-
+        String token = request.getHeader("Authorization");
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", userService.InfoService(token).getId());
 
         // 检查参数是否为空，如果不为空则进行更新
-        if (userDTO.getUsername() != null) {
-            updateWrapper.set("username", userDTO.getUsername());
-        }
+
         if (userDTO.getAge() != null) {
             updateWrapper.set("age", userDTO.getAge());
         }

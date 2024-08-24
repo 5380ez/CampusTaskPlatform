@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
         // 重要信息置空
         if (user != null) {
             Date now = new Date();
-            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             user.setLastLoginTime(Timestamp.valueOf(ft.format(now)));
             user=userDao.save(user);
             user.setPassword("");
@@ -73,17 +73,11 @@ public class UserServiceImpl implements UserService {
             User user = userDao.findByUsername(username);
             Date IssuedAt = JWTUtils.getClaimsByToken(token).getIssuedAt();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            if (simpleDateFormat.format(IssuedAt).compareTo(String.valueOf(user.getLastLoginTime())) == 0) {
-                System.out.println("Token is valid.");
+            if (Timestamp.valueOf(simpleDateFormat.format(IssuedAt)).compareTo(user.getLastLoginTime()) == 0) {
                 return user;
-            } else {
-                System.out.println("Token is invalid.");
-                return null;
             }
-        } else {
-            System.out.println("Token verification failed.");
-            return null;
         }
+        return null;
     }
 
     @Override

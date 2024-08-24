@@ -82,7 +82,6 @@ public class TaskController {
        // comment.setParentId(parentId);
         comment.setReceiverId(receiverId);
         comment.setLikeNum(likeNum);
-        comment.setFloorNum(floorNum);
         int row = commentMapper.insert(comment);
 
         return comment;
