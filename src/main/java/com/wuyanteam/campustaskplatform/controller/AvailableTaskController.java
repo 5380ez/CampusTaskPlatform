@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
 import com.wuyanteam.campustaskplatform.entity.Task;
+import com.wuyanteam.campustaskplatform.entity.TaskDTO;
 import com.wuyanteam.campustaskplatform.entity.UTT;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +19,11 @@ public class AvailableTaskController {
     @Resource
     private TaskMapper taskMapper;
 
-    @PostMapping
-    public IPage availableTask(String campus, String sex, int page, String sortOrder, boolean isDesc) {
-        return getTasks(campus, sex, page, sortOrder, isDesc, null);
+    @PostMapping("/task")
+    public IPage availableTask(@RequestBody TaskDTO taskDTO) {
+        System.out.println("性别:"+taskDTO.getSex());
+        System.out.println("分页:"+taskDTO.getPage());
+        return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.getIsDesc(), null);
     }
 
     // 新增搜索方法
