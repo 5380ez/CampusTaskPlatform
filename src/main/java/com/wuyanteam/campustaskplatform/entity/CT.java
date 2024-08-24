@@ -8,8 +8,13 @@ import java.sql.Timestamp;
 //Comments and Task
 @Data
 public class CT {
-    String userName;
     String content;
     Timestamp publishTime;
-    int likeNum;
+    Integer likeNum;
+    Integer publisherId;
+    Integer receiverId;
+    Integer parentId;
+    String publisherUsername;
+    String receiverUsername;
+    Timestamp ancestorPublishTime;
 }

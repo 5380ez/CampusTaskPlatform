@@ -1,12 +1,12 @@
 package com.wuyanteam.campustaskplatform.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
-import com.wuyanteam.campustaskplatform.entity.Task;
-import com.wuyanteam.campustaskplatform.entity.UTT;
-import com.wuyanteam.campustaskplatform.entity.MyTaskDTO;
+import com.wuyanteam.campustaskplatform.entity.*;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
+import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +20,9 @@ public class MyPublishingTaskController {
 
     @Resource
     private TaskMapper taskMapper;
+
+    @Resource
+    private UserMapper userMapper;
     @Resource
     private UserService userService;
     // 分页查询
@@ -34,7 +37,7 @@ public class MyPublishingTaskController {
         return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(), myTaskDTO.getKeyword());
     }
 
-    private IPage getTasks(int myId, int page, @RequestParam(defaultValue = "publish_time")String sortRule, @RequestParam(defaultValue = "true")boolean isDesc, String state, String keyword) {
+    private IPage getTasks(int myId, int page, String sortRule, boolean isDesc, String state, String keyword) {
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
                 .select("take_time", "publish_time", "finish_time", "due_time", "title")
@@ -58,5 +61,57 @@ public class MyPublishingTaskController {
         }
 
         return iPage;
+    }
+    @DeleteMapping("/{state}")
+    public String DeletingTask(@RequestBody TaskIdDTO taskIdDTO, @PathVariable String state){
+        // 假设有一个 QueryWrapper 对象，设置删除条件为 id = 'taskId'
+        int id= taskIdDTO.getId();
+        if (state.equals("complete")||state.equals("timeout")||state.equals("un-taken")){
+            QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("id", id);
+            Task task = taskMapper.selectOne(queryWrapper);
+            int result = taskMapper.deleteById(id); // 调用 remove 方法
+            if (result==1) {
+                return ("Record deleted successfully.");
+            } else {
+                return ("Failed to delete record.");
+            }
+        }
+        if(state.equals("incomplete")) {
+            QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("id", id);
+            Task task = taskMapper.selectOne(queryWrapper);
+            int takerId=task.getPublisherId();
+//            QueryWrapper<User> queryWrapper1 = new QueryWrapper<>();
+//            queryWrapper1.eq("id",takerId);
+//            User user = userMapper.selectOne(queryWrapper1);
+            // 假设要更新 ID 为 1 的用户的邮箱
+            User updateUser = new User();
+            updateUser.setId(takerId);
+            int exp=updateUser.getExp();
+            exp=exp-5;
+            int flag=1;
+            if(exp<0){
+                updateUser.setExp(0);
+                flag=0;
+            }
+            updateUser.setExp(exp);
+            int rows = userMapper.updateById(updateUser); // 调用 updateById 方法
+            if (rows > 0) {
+                System.out.println("User updated successfully.");
+            } else {
+                System.out.println("No user updated.");
+            }
+            int result = taskMapper.deleteById(id); // 调用 remove 方法
+            if (result==1) {
+                if(flag==0){
+                    return "Record deleted successfully.But your exp is over";
+                }
+                return ("Record deleted successfully.");
+            } else {
+                return ("Failed to delete record.");
+            }
+        }
+        return "Cannot find task";
     }
 }

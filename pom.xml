@@ -34,7 +34,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.19</version>
+            <version>5.1.9</version>
         </dependency>
         <!-- 数据连接池druid -->
         <dependency>

@@ -8,6 +8,6 @@ public class TaskDTO {
     private String sex;
     private int page;
     private String sortOrder;
-    private boolean isDesc;
+    private Boolean isDesc;
     private String keyword;
 }

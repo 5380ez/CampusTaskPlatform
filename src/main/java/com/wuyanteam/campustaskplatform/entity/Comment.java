@@ -7,13 +7,13 @@ import java.sql.Timestamp;
 @Data
 public class Comment
 {
+    private int parentId;
+    private String content;
     private int id;
     private int commentatorId;
     private int taskId;
-    private String content;
     private int receiverId;
     private Timestamp publishTime;
     private int likeNum;
-    private int floorNum;
-
+    private Timestamp ancestorPublishTime;
 }

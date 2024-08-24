@@ -26,7 +26,7 @@ public class UserController {
     @Resource
     private UserService userService;
     @PostMapping("/user")
-    public Result<User> muInfo(HttpServletRequest request){
+    public Result<User> myInfo(HttpServletRequest request){
         String token = request.getHeader("Authorization");
         if(userService.InfoService(token)==null){
             return Result.error("123","token已失效");
@@ -68,10 +68,10 @@ public class UserController {
         }
     }
     @PostMapping("/login")
-    public Result<User> login(@RequestBody LoginDTO loginDTO) {
-        User user=userService.LoginService(loginDTO.getUsername(),loginDTO.getPassword());
+    public Result<User> login(String username,String password) {
+        User user=userService.LoginService(username,password);
         if(user!=null){
-            String token= String.valueOf(JWTUtils.generateToken(loginDTO.getUsername()));
+            String token= String.valueOf(JWTUtils.generateToken(username));
             return Result.success(user,token);
         }else{
             return Result.error("123","账号或密码错误!");

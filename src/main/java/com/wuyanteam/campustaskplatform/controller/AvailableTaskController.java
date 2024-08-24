@@ -20,20 +20,20 @@ public class AvailableTaskController {
     private TaskMapper taskMapper;
     @PostMapping("/availableTask")
     public IPage availableTask(@RequestBody TaskDTO taskDTO) {
-        return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.isDesc(), null);
+        System.out.println(taskDTO);
+        return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.getIsDesc(), null);
     }
 
     // 新增搜索方法
     @PostMapping("/availableTask/search")
     public IPage searchAvailableTask(@RequestBody TaskDTO taskDTO) {
-        return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.isDesc(), taskDTO.getKeyword());
+        return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.getIsDesc(), taskDTO.getKeyword());
     }
 
     private IPage getTasks(String campus, String sex, int page, String sortOrder, boolean isDesc, String keyword) {
-        System.out.println("done");
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
-                .select("username", "sex", "`level`","`user`.id as uid")
+                .select("username", "sex", "`level`", "`user`.id as uid")
                 .select("publish_time", "reward", "start_address", "end_address", "due_time", "title", "campus")
                 .innerJoin("`user` on publisher_id = `user`.id")
                 .eq("state", "un-taken");
@@ -52,10 +52,13 @@ public class AvailableTaskController {
             queryWrapper.eq("sex", sex);
         }
 
+        // 直接使用 isDesc 的值来确定排序方式
         if (isDesc) {
             iPage = taskMapper.selectJoinPage(new Page<>(page, 10), UTT.class, queryWrapper.orderByDesc(sortOrder));
+            System.out.println("desc");
         } else {
             iPage = taskMapper.selectJoinPage(new Page<>(page, 10), UTT.class, queryWrapper.orderByAsc(sortOrder));
+            System.out.println("asc");
         }
 
         return iPage;
