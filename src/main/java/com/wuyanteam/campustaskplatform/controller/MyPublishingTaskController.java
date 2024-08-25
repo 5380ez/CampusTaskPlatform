@@ -27,13 +27,13 @@ public class MyPublishingTaskController {
     private UserService userService;
     // 分页查询
     @PostMapping("/{state}")
-    public IPage myPublishingTask(HttpServletRequest request, MyTaskDTO myTaskDTO,@PathVariable String state) {
+    public IPage myPublishingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO,@PathVariable String state) {
         return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(),state,null);
     }
 
     // 搜索
     @PostMapping("/search/{state}")
-    public IPage searchPublishingTask(HttpServletRequest request,MyTaskDTO myTaskDTO,@PathVariable String state) {
+    public IPage searchPublishingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO,@PathVariable String state) {
         return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), state, myTaskDTO.getKeyword());
     }
 

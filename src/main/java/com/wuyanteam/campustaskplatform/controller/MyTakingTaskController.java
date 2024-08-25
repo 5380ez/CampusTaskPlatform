@@ -24,13 +24,13 @@ public class MyTakingTaskController {
     private UserService userService;
     // 分页查询
     @PostMapping("/{state}")
-    public IPage myTakingTask(HttpServletRequest request,MyTaskDTO myTaskDTO,@PathVariable String state) {
+    public IPage myTakingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO,@PathVariable String state) {
         return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), state,null);
     }
 
     // 搜索
     @PostMapping("/search/{state}")
-    public IPage searchTakingTask(HttpServletRequest request,MyTaskDTO myTaskDTO,@PathVariable String state) {
+    public IPage searchTakingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO,@PathVariable String state) {
         return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), state, myTaskDTO.getKeyword());
     }
 

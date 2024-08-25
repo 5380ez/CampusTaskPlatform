@@ -23,13 +23,22 @@ public class UserController {
     //用户个人信息
     @Resource
     private UserService userService;
-    @PostMapping("/user")
+    @GetMapping("/user")
     public Result<User> myInfo(HttpServletRequest request){
         String token = request.getHeader("Authorization");
         if(userService.InfoService(token)==null){
             return Result.error("123","token已失效");
         }
         return Result.success(userService.InfoService(token));
+    }
+    @GetMapping("/user/{id}")
+    public List searchByName(@PathVariable int id)
+    {
+        QueryWrapper<User> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("id",id)
+                .select("id","username","sex","age","stu_id","exp","level","like_count",
+                        "publish_num","qq","email","phone");
+        return userMapper.selectList(queryWrapper);
     }
     //修改用户信息
     @PostMapping("/user/setting")
