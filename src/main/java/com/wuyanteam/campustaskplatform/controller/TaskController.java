@@ -40,7 +40,7 @@
         @Autowired
         private UserService userService;
 
-        @Resource
+        @Autowired
         private TaskService taskService;
 
         @GetMapping("/{task_id}")
@@ -61,11 +61,18 @@
             return list;
         }
         @PostMapping("/{task_id}")
-        public Result taskUpdate(HttpServletRequest request, @PathVariable("task_id") int taskId)
+        public Result taskUpdate(HttpServletRequest request, @PathVariable("task_id") Integer taskId)
         {
+            System.out.println(taskService);
             int uid = userService.InfoService(request.getHeader("Authorization")).getId();
             UpdateWrapper<Task> updateWrapper = new UpdateWrapper<>();
-            Task task = taskService.getByIdDeep(taskId);
+
+            Task task = taskService.getById(taskId);
+
+            if (task == null)
+            {
+                System.out.println("null");
+            }
             System.out.println(task);
             updateWrapper.eq("id", taskId);
             if (task.getPublisherId() == uid) {
