@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin //允许该控制器跨域
-@RequestMapping("/mytakingtask")
+@RequestMapping("/myTakingTask")
 public class MyTakingTaskController {
 
     @Resource
@@ -23,15 +23,15 @@ public class MyTakingTaskController {
     @Resource
     private UserService userService;
     // 分页查询
-    @PostMapping("/{state}")
+    @PostMapping()
     public IPage myTakingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO,@PathVariable String state) {
-        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), state,null);
+        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.getIsDesc(), state,null);
     }
 
     // 搜索
-    @PostMapping("/search/{state}")
+    @PostMapping("/search")
     public IPage searchTakingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO,@PathVariable String state) {
-        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), state, myTaskDTO.getKeyword());
+        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.getIsDesc(), state, myTaskDTO.getKeyword());
     }
 
     private IPage getTasks(int myId, Integer page, String sortRule, boolean isDesc,String state, String keyword) {

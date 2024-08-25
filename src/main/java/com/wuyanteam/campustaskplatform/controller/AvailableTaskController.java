@@ -13,19 +13,19 @@ import javax.annotation.Resource;
 
 @RestController
 @CrossOrigin //允许该控制器跨域
-
+@RequestMapping("/availableTask")
 public class AvailableTaskController {
 
     @Resource
     private TaskMapper taskMapper;
-    @PostMapping("/availableTask")
+    @PostMapping()
     public IPage availableTask(@RequestBody TaskDTO taskDTO) {
         System.out.println(taskDTO);
         return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.getIsDesc(), null);
     }
 
     // 新增搜索方法
-    @PostMapping("/availableTask/search")
+    @PostMapping("/search")
     public IPage searchAvailableTask(@RequestBody TaskDTO taskDTO) {
         return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.getIsDesc(), taskDTO.getKeyword());
     }

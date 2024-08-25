@@ -22,7 +22,7 @@ public class CreatingTaskController {
     private UserMapper userMapper;
     @Resource
     private UserService userService;
-    @PostMapping("/task")
+    @PostMapping()
     public String createTask(HttpServletRequest request, @RequestBody Task task) {
         String token = request.getHeader("Authorization");
         // 验证 reward 是否在有效范围内

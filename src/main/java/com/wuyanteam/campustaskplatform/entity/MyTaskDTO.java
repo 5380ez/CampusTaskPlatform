@@ -6,7 +6,8 @@ import lombok.Data;
 public class MyTaskDTO {
     private int page;
     private String sortRule;
-    private boolean isDesc;
+    private Boolean isDesc;
     private String keyword;
+    private String state;
     }
 

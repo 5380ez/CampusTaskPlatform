@@ -26,15 +26,15 @@ public class MyPublishingTaskController {
     @Resource
     private UserService userService;
     // 分页查询
-    @PostMapping("/{state}")
-    public IPage myPublishingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO,@PathVariable String state) {
-        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(),state,null);
+    @PostMapping()
+    public IPage myPublishingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO) {
+        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.getIsDesc(),myTaskDTO.getState(),null);
     }
 
     // 搜索
-    @PostMapping("/search/{state}")
-    public IPage searchPublishingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO,@PathVariable String state) {
-        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), state, myTaskDTO.getKeyword());
+    @PostMapping("/search")
+    public IPage searchPublishingTask(HttpServletRequest request,@RequestBody MyTaskDTO myTaskDTO) {
+        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.getIsDesc(), myTaskDTO.getState(), myTaskDTO.getKeyword());
     }
 
     private IPage getTasks(int myId, int page, String sortRule, boolean isDesc,String state, String keyword) {
