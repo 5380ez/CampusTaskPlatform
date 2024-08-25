@@ -10,6 +10,7 @@ import com.wuyanteam.campustaskplatform.service.TaskService;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;

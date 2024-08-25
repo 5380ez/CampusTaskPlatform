@@ -13,6 +13,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.6.13</spring-boot.version>
     </properties>
+    <parent>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <version>2.6.3</version>
+    </parent>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -28,13 +33,12 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.4.2</version>
+            <version>3.5.1</version>
         </dependency>
         <!-- mysql驱动依赖 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.9</version>
         </dependency>
         <!-- 数据连接池druid -->
         <dependency>
@@ -51,7 +55,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.12</version>
         </dependency>
         <!-- Jpadependence依赖 -->
         <dependency>

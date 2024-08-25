@@ -2,11 +2,16 @@ package com.wuyanteam.campustaskplatform.entity;
 
 import lombok.Data;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.sql.Timestamp;
-
+@Table(name="task")
+@Entity
 @Data
 public class Task
 {
+    @Id
     private int id;
     private int publisherId;
     private Integer takerId;

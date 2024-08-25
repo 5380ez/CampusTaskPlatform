@@ -30,7 +30,7 @@ public class AvailableTaskController {
         return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.getIsDesc(), taskDTO.getKeyword());
     }
 
-    private IPage getTasks(String campus, String sex, int page, String sortOrder, boolean isDesc, String keyword) {
+    private IPage getTasks(String campus, String sex, int page, String sortOrder, Boolean isDesc, String keyword) {
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
                 .select("username", "sex", "`level`", "`user`.id as uid")
