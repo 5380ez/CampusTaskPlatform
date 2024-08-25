@@ -24,17 +24,17 @@ public class MyTakingTaskController {
     private UserService userService;
     // 分页查询
     @PostMapping("/{state}")
-    public IPage myTakingTask(HttpServletRequest request,MyTaskDTO myTaskDTO) {
-        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(),null);
+    public IPage myTakingTask(HttpServletRequest request,MyTaskDTO myTaskDTO,@PathVariable String state) {
+        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), state,null);
     }
 
     // 搜索
     @PostMapping("/search/{state}")
-    public IPage searchTakingTask(HttpServletRequest request,MyTaskDTO myTaskDTO) {
-        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(), myTaskDTO.getKeyword());
+    public IPage searchTakingTask(HttpServletRequest request,MyTaskDTO myTaskDTO,@PathVariable String state) {
+        return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), state, myTaskDTO.getKeyword());
     }
 
-    private IPage getTasks(int myId, Integer page, String sortRule, boolean isDesc,@PathVariable("state") String state, String keyword) {
+    private IPage getTasks(int myId, Integer page, String sortRule, boolean isDesc,String state, String keyword) {
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
                 .select("t.id as taskId","reward", "start_address", "end_address", "due_time", "title")

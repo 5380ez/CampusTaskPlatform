@@ -2,9 +2,7 @@ package com.wuyanteam.campustaskplatform.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.wuyanteam.campustaskplatform.entity.LoginDTO;
 import com.wuyanteam.campustaskplatform.entity.User;
-import com.wuyanteam.campustaskplatform.entity.UserDTO;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.JWTUtils;
@@ -35,7 +33,7 @@ public class UserController {
     }
     //修改用户信息
     @PostMapping("/user/setting")
-    public ResponseEntity<Object> setting(HttpServletRequest request, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<Object> setting(HttpServletRequest request, @RequestBody User user) {
 
         // 验证 username 是否为空、仅包含空白字符或长度不符合要求
         String token = request.getHeader("Authorization");
@@ -44,20 +42,20 @@ public class UserController {
 
         // 检查参数是否为空，如果不为空则进行更新
 
-        if (userDTO.getAge() != null) {
-            updateWrapper.set("age", userDTO.getAge());
+        if (user.getAge() != null) {
+            updateWrapper.set("age", user.getAge());
         }
-        if (userDTO.getAddress() != null) {
-            updateWrapper.set("address", userDTO.getAddress());
+        if (user.getAddress() != null) {
+            updateWrapper.set("address", user.getAddress());
         }
-        if (userDTO.getQq() != null) {
-            updateWrapper.set("qq", userDTO.getQq());
+        if (user.getQq() != null) {
+            updateWrapper.set("qq", user.getQq());
         }
-        if (userDTO.getEmail() != null) {
-            updateWrapper.set("email", userDTO.getEmail());
+        if (user.getEmail() != null) {
+            updateWrapper.set("email", user.getEmail());
         }
-        if (userDTO.getPhone() != null) {
-            updateWrapper.set("phone", userDTO.getPhone());
+        if (user.getPhone() != null) {
+            updateWrapper.set("phone", user.getPhone());
         }
         // 执行更新操作
         int row = userMapper.update(null, updateWrapper);
@@ -68,7 +66,9 @@ public class UserController {
         }
     }
     @PostMapping("/login")
-    public Result<User> login(String username,String password) {
+    public Result<User> login(@RequestBody User loginRequest) {
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
         User user=userService.LoginService(username,password);
         if(user!=null){
             String token= String.valueOf(JWTUtils.generateToken(username));

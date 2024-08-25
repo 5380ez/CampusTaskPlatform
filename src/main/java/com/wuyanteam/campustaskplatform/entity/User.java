@@ -15,7 +15,7 @@ public class User {
     private String username;
     private String password;
     private String sex;
-    private int age;
+    private Integer age;
     private Timestamp accCrtTime;
     private int stuId;
     private int exp;

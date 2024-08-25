@@ -73,13 +73,10 @@ public class TaskController {
     }
 
     @PostMapping("/{task_id}")
-    public String createComment(@PathVariable("task_id")int taskId,@RequestBody CommentDTO commentDTO/*@RequestParam String content, @RequestParam Integer commentatorId*/){
-        //
-        //String token = request.getHeader("Authorization");
-        Comment comment = new Comment();
+    public String createComment(@PathVariable("task_id")int taskId,@RequestBody Comment comment){
         comment.setTaskId(taskId);
-        comment.setCommentatorId(commentDTO.getCommentatorId());
-        comment.setContent(commentDTO.getContent());
+        comment.setCommentatorId(comment.getCommentatorId());
+        comment.setContent(comment.getContent());
         LocalDateTime now = LocalDateTime.now();
         Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
         comment.setPublishTime(publishTime);
@@ -126,12 +123,12 @@ public class TaskController {
     }
 
     @DeleteMapping("/{task_id}")
-    public String deleteComment(HttpServletRequest request, @RequestBody DeleteCommentDTO deleteCommentDTO){
+    public String deleteComment(HttpServletRequest request, @RequestBody Comment comment){
 
-        Comment commentSearch = commentMapper.selectById(deleteCommentDTO.getCommentId());
+        Comment commentSearch = commentMapper.selectById(comment.getId());
         if(Objects.equals(userService.InfoService(request.getHeader("Authorization")).getId(), commentSearch.getCommentatorId()))
         {
-            commentMapper.deleteById(deleteCommentDTO.getCommentId());
+            commentMapper.deleteById(comment.getId());
             return "评论删除成功！";
         }else {
             return "删除失败！您无此权限！";
