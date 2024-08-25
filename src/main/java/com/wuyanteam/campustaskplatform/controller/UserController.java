@@ -3,26 +3,66 @@ package com.wuyanteam.campustaskplatform.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wuyanteam.campustaskplatform.entity.User;
+import com.wuyanteam.campustaskplatform.entity.photoWall;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
+import com.wuyanteam.campustaskplatform.service.UploadFileService;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.JWTUtils;
 import com.wuyanteam.campustaskplatform.utils.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 @RestController
 @CrossOrigin //允许该控制器跨域
-//@RequestMapping("/user")
+
 public class UserController {
     @Resource
     UserMapper userMapper;
     //用户个人信息
     @Resource
     private UserService userService;
+    @Resource
+    private UploadFileService uploadFile;
+
+    @PostMapping("/user/setting/changeAvatar")
+    public Result<User> upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        if(file.isEmpty()){
+            return Result.error("上传失败，文件为空");
+        }
+        String token = request.getHeader("Authorization");
+        User user=uploadFile.UpdateAvatar(token,file);
+        if(user==null){
+            return Result.error("头像更新失败");
+        }
+        return Result.success(user);
+    }
+
+
+    @PostMapping("/user/setting/UpdatePhotoWall")
+    public Result<photoWall> uploadphotowall(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        if(file.isEmpty()){
+            return Result.error("上传失败，文件为空");
+        }
+        String token = request.getHeader("Authorization");
+        photoWall photowall=uploadFile.updatePhotoWall(token,file);
+        if(photowall==null){
+            return Result.error("照片墙更新失败");
+        }
+        return Result.success(photowall);
+    }
+
+    @DeleteMapping("/user/setting/DeletePhotoWall/{id}")
+    public Result deletephotowall(@PathVariable int id) {
+        if(uploadFile.deletePhotoWall(id)==1){
+        return Result.success("移除成功");}
+        return Result.error("该图片已被移除");
+    }
+
     @GetMapping("/user")
     public Result<User> myInfo(HttpServletRequest request){
         String token = request.getHeader("Authorization");
