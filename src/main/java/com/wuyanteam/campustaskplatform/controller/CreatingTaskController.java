@@ -43,7 +43,6 @@ public class CreatingTaskController {
         if (task.getEndAddress() == null || task.getEndAddress().isEmpty()) {
             return "Failed to create task: End address cannot be empty.";
         }
-
         Task newTask = new Task();
         newTask.setPublisherId(userService.InfoService(token).getId());
         LocalDateTime now = LocalDateTime.now();
@@ -61,9 +60,7 @@ public class CreatingTaskController {
         if (newTask.getDueTime().compareTo(publishTime) < 0) {
             return "Failed to create task: Due time (" + newTask.getDueTime() + ") cannot be earlier than publishTime (" + publishTime + ").";
         }
-
-
-        int rows = taskMapper.insert(task);
+        int rows = taskMapper.insert(newTask);
 
         if (rows > 0) {
             return "Task created successfully.";
