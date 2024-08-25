@@ -34,7 +34,7 @@ public class AvailableTaskController {
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
                 .select("username", "sex", "`level`", "`user`.id as uid")
-                .select("publish_time", "reward", "start_address", "end_address", "due_time", "title", "campus")
+                .select("t.id as taskId","publish_time", "reward", "start_address", "end_address", "due_time", "title", "campus")
                 .innerJoin("`user` on publisher_id = `user`.id")
                 .eq("state", "un-taken");
 

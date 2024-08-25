@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin //允许该控制器跨域
-@RequestMapping("/mypPublishingTask")
+@RequestMapping("/myPublishingTask")
 public class MyPublishingTaskController {
 
     @Resource
@@ -37,10 +37,10 @@ public class MyPublishingTaskController {
         return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(), myTaskDTO.getKeyword());
     }
 
-    private IPage getTasks(int myId, int page, String sortRule, boolean isDesc, String state, String keyword) {
+    private IPage getTasks(int myId, int page, String sortRule, boolean isDesc,@PathVariable("state") String state, String keyword) {
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
-                .select("take_time", "publish_time", "finish_time", "due_time", "title")
+                .select("t.id as taskId","take_time", "publish_time", "finish_time", "due_time", "title")
                 .select("username", "sex")
                 .leftJoin("`user` on taker_id = `user`.id")
                 .eq("publisher_id", myId)

@@ -34,10 +34,10 @@ public class MyTakingTaskController {
         return getTasks(userService.InfoService(request.getHeader("Authorization")).getId(), myTaskDTO.getPage(), myTaskDTO.getSortRule(), myTaskDTO.isDesc(), myTaskDTO.getState(), myTaskDTO.getKeyword());
     }
 
-    private IPage getTasks(int myId, Integer page, String sortRule, boolean isDesc, String state, String keyword) {
+    private IPage getTasks(int myId, Integer page, String sortRule, boolean isDesc,@PathVariable("state") String state, String keyword) {
         IPage<UTT> iPage;
         MPJQueryWrapper<Task> queryWrapper = new MPJQueryWrapper<Task>()
-                .select("reward", "start_address", "end_address", "due_time", "title")
+                .select("t.id as taskId","reward", "start_address", "end_address", "due_time", "title")
                 .select("username", "sex")
                 .innerJoin("`user` on publisher_id = `user`.id")
                 .eq("taker_id", myId)

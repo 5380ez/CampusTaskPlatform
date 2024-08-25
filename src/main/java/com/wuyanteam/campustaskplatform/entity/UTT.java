@@ -36,7 +36,7 @@ public class UTT
     private String publisherPhone;
     private String takerPhone;
     private int finishNum;
-    private int id;
+    private int taskId;
     private int publisherId;
     private int takerId;
     private Timestamp publishTime;
