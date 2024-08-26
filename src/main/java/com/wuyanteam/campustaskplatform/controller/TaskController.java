@@ -84,7 +84,7 @@ public class TaskController {
         pagedComments = commentMapper.selectJoinPage(new Page<>(currentPage, 5),
                 CT.class,
                 new MPJQueryWrapper<Comment>()
-                        .select("com.content", "com.publish_time", "com.like_num", "u.username as publisherUsername","u1.username as receiverUsername")
+                        .select("com.content", "com.publish_time", "com.like_num", "u.username as publisherUsername","u1.username as receiverUsername","com.parent_id")
                         .innerJoin("`comment` com on com.task_id = t.id")
                         .innerJoin("`user` u on com.commentator_id = u.id")
                         .innerJoin("`user` u1 on com.receiver_id = u1.id")
@@ -268,7 +268,6 @@ public class TaskController {
                 System.out.println("Failed to update record.");
             }
             return Result.success("你接受的任务已取消");
-
         }
         return Result.error("403","未检测到操作");
     }

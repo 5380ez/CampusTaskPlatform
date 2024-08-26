@@ -45,7 +45,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/user/setting/UpdatePhotoWall")
+    @PostMapping("/user/setting/updatePhotoWall")
     public Result<photoWall> uploadphotowall(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         if(file.isEmpty()){
             return Result.error("上传失败，文件为空");
@@ -58,7 +58,7 @@ public class UserController {
         return Result.success(photowall);
     }
 
-    @DeleteMapping("/user/setting/DeletePhotoWall/{id}")
+    @DeleteMapping("/user/setting/deletePhotoWall/{id}")
     public Result deletephotowall(@PathVariable int id) {
         if(uploadFile.deletePhotoWall(id)==1){
         return Result.success("移除成功");}
