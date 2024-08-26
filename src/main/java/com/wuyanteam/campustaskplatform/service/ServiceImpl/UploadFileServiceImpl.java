@@ -34,7 +34,7 @@ private photoWallDao photoWallDao;
             e.printStackTrace();
             throw new RuntimeException("Failed to read file", e);
         }
-        user.setPicture(bytes);
+        user.setAvatar(bytes);
         userDao.save(user);
         return user;
     }
