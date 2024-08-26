@@ -4,16 +4,20 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
+import com.sun.org.apache.xpath.internal.operations.Mult;
 import com.wuyanteam.campustaskplatform.entity.*;
 import com.wuyanteam.campustaskplatform.mapper.CommentMapper;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.TaskService;
+import com.wuyanteam.campustaskplatform.service.UploadFileService;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -36,6 +40,8 @@ public class TaskController {
     private UserService userService;
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private UploadFileService uploadFileService;
     @GetMapping("/{task_id}")
     public List<UTT> taskInformation(HttpServletRequest request, @PathVariable("task_id") int taskId) {
         // 查询任务信息
@@ -46,7 +52,7 @@ public class TaskController {
                 new MPJQueryWrapper<Task>().select("u1.username as publisherUsername", "u1.sex as publisherSex",
                                 "u1.phone as publisherPhone ", "u1.level as publisherLevel", "u2.username as takerUsername",
                                 "u2.sex as takerSex", "u2.level as takerLevel", "u2.phone as takerPhone", "t.publisher_id",
-                                "t.taker_id", "t.publish_time", "t.state", "t.take_time", "t.reward", "t.campus",
+                                "t.taker_id", "t.publish_time", "t.state", "t.take_time", "t.reward", "t.campus","u1.avatar",
                                 "t.start_address", "t.end_address", "t.due_time", "t.title", "t.description")
                         .innerJoin("`user` u1 on t.publisher_id = u1.id")
                         .leftJoin("`user` u2 on t.taker_id = u2.id")
@@ -84,13 +90,13 @@ public class TaskController {
         pagedComments = commentMapper.selectJoinPage(new Page<>(currentPage, 5),
                 CT.class,
                 new MPJQueryWrapper<Comment>()
-                        .select("com.content", "com.publish_time", "com.like_num", "u.username as publisherUsername","u1.username as receiverUsername","com.parent_id")
-                        .innerJoin("`comment` com on com.task_id = t.id")
-                        .innerJoin("`user` u on com.commentator_id = u.id")
-                        .innerJoin("`user` u1 on com.receiver_id = u1.id")
-                        .eq("t.id", taskId)
-                        .orderByAsc("com.ancestor_publish_time")
-                        .orderByAsc("com.publish_time"));
+                        .select("t.id","u.avatar","t.content", "t.publish_time", "t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id")
+                        .innerJoin("`task` t1 on t.task_id = t1.id")
+                        .innerJoin("`user` u on t.commentator_id = u.id")
+                        .innerJoin("`user` u1 on t.receiver_id = u1.id")
+                        .eq("t1.id", taskId)
+                        .orderByAsc("t.ancestor_publish_time")
+                        .orderByAsc("t.publish_time"));
 
         Map<String, Object> result = new HashMap<>();
         result.put("comments", pagedComments.getRecords());
@@ -99,6 +105,7 @@ public class TaskController {
         result.put("pageSize", 5);
         return result;
     }
+
     @PostMapping("/{task_id}/comment/create")
     public Map<String,Object> createComment(HttpServletRequest request,@PathVariable("task_id")int taskId,@RequestBody Comment comment){
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
@@ -271,5 +278,36 @@ public class TaskController {
         }
         return Result.error("403","未检测到操作");
     }
-
+    @PostMapping("/{task_id}/requestConfirm")
+    public Result requestConfirm(HttpServletRequest request, @PathVariable("task_id") int taskId, @RequestParam("file")MultipartFile file)
+    {
+        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
+        //根据taskId获得任务
+        Task task = taskService.getById(taskId);
+        if(uid == task.getTakerId() )
+        {
+            LocalDateTime now = LocalDateTime.now();
+            Timestamp nowTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+            if(task.getDueTime().compareTo(nowTime) < 0)
+            {
+                return Result.error("402","任务已超时！");
+            }
+            UpdateWrapper<Task> updateWrapper= new UpdateWrapper<>();
+            updateWrapper.eq("id",taskId).set("state","unconfirmed");
+            int row = taskMapper.update(null,updateWrapper);
+            if(row > 0)
+            {
+                uploadFileService.taskPhoto(task,file);
+                return Result.success("已提交完成申请");
+            }
+            else
+            {
+                return Result.error("403","提交失败");
+            }
+        }
+        else
+        {
+            return Result.error("401","无权限");
+        }
+    }
 }

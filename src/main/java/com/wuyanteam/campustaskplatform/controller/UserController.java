@@ -37,7 +37,7 @@ public class UserController {
             return Result.error("上传失败，文件为空");
         }
         String token = request.getHeader("Authorization");
-        User user=uploadFile.UpdateAvatar(token,file);
+        User user=uploadFile.updateAvatar(token,file);
         if(user==null){
             return Result.error("头像更新失败");
         }
@@ -46,7 +46,7 @@ public class UserController {
 
 
     @PostMapping("/user/setting/updatePhotoWall")
-    public Result<photoWall> uploadphotowall(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public Result<photoWall> uploadPhotoWall(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         if(file.isEmpty()){
             return Result.error("上传失败，文件为空");
         }
@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user/setting/deletePhotoWall/{id}")
-    public Result deletephotowall(@PathVariable int id) {
+    public Result deletePhotoWall(@PathVariable int id) {
         if(uploadFile.deletePhotoWall(id)==1){
         return Result.success("移除成功");}
         return Result.error("该图片已被移除");
