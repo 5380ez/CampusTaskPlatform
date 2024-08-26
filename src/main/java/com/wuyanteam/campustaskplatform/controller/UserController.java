@@ -2,6 +2,7 @@ package com.wuyanteam.campustaskplatform.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.github.yulichang.query.MPJQueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.wuyanteam.campustaskplatform.entity.User;
 import com.wuyanteam.campustaskplatform.entity.UserDTO;
@@ -74,11 +75,10 @@ public class UserController {
         return Result.success(userService.InfoService(token));*/
         String token = request.getHeader("Authorization");
         int id=userService.InfoService(token).getId();
-        MPJLambdaWrapper<User> wrapper = new MPJLambdaWrapper<User>()
-                .selectAll(User.class)
-                .rightJoin(photoWall.class,on -> on
-                        .eq(User::getId,photoWall::getUserId)
-                        .eq(User::getId,id));
+        MPJQueryWrapper<User> wrapper = new MPJQueryWrapper<User>()
+                .selectAll(User.class).select("photo_wall.photo")
+                .leftJoin("photo_wall on photo_wall.user_id = t.id")
+                .eq("t.id",id);
         return Result.success(userMapper.selectJoinList(UserDTO.class, wrapper)) ;
     }
     @GetMapping("/user/{id}")
@@ -94,7 +94,7 @@ public class UserController {
                 .select(User::getId,User::getUsername,User::getSex,User::getStuId,User::getExp,User::getLevel,User::getLikeCount
                 ,User::getPublishNum,User::getQq,User::getEmail,User::getPhone,User::getSignature,User::getAvatar)
                 .select(photoWall::getPhoto)
-                .rightJoin(photoWall.class,on -> on
+                .leftJoin(photoWall.class,on -> on
                         .eq(User::getId,photoWall::getUserId)
                         .eq(User::getId,id));
 
