@@ -2,8 +2,12 @@ package com.wuyanteam.campustaskplatform.service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuyanteam.campustaskplatform.Reposity.UserDao;
+import com.wuyanteam.campustaskplatform.entity.Task;
 import com.wuyanteam.campustaskplatform.entity.User;
+import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
+import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.JWTUtils;
 import org.springframework.stereotype.Service;
@@ -18,7 +22,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Resource
     private UserDao userDao;
 
@@ -115,10 +119,6 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-    @Override
-    public BaseMapper<User> getBaseMapper() {
-        return null;
-    }
 
     @Override
     public Class<User> getEntityClass() {
