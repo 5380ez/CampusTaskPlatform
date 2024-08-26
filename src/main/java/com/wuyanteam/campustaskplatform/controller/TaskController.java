@@ -78,16 +78,17 @@ public class TaskController {
         return Result.success(task,"成功接单！");
     }
     //查看评论
-    @GetMapping("/{task_id}/comment")
-    public Map<String, Object> commentInformation(@PathVariable("task_id") int taskId, @RequestParam(value = "page",defaultValue = "1") int currentPage)
+    @GetMapping("/{task_id}/comment/{page}")
+    public Map<String, Object> commentInformation(@PathVariable("task_id") int taskId, @PathVariable(value = "page") int currentPage)
     {
         IPage<CT> pagedComments;
         pagedComments = commentMapper.selectJoinPage(new Page<>(currentPage, 5),
                 CT.class,
                 new MPJQueryWrapper<Comment>()
-                        .select("com.content", "com.publish_time", "com.like_num", "u.username")
+                        .select("com.content", "com.publish_time", "com.like_num", "u.username as publisherUsername","u1.username as receiverUsername")
                         .innerJoin("`comment` com on com.task_id = t.id")
                         .innerJoin("`user` u on com.commentator_id = u.id")
+                        .innerJoin("`user` u1 on com.receiver_id = u1.id")
                         .eq("t.id", taskId));
         Map<String, Object> result = new HashMap<>();
         result.put("comments", pagedComments.getRecords());
@@ -218,7 +219,7 @@ public class TaskController {
             if (result) {
                 if(state.equals("incomplete")){
                     // 假设有一个 User 实体对象，设置更新字段为 email，根据 ID 更新
-                    User user = userService.getById(publisherId);
+                    User user = userMapper.selectById(publisherId);
                     int flag=1;
                     int exp=user.getExp();
                     System.out.println(exp);
