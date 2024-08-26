@@ -1,6 +1,8 @@
 package com.wuyanteam.campustaskplatform.service.ServiceImpl;
 
+import com.wuyanteam.campustaskplatform.Reposity.TaskDao;
 import com.wuyanteam.campustaskplatform.Reposity.UserDao;
+import com.wuyanteam.campustaskplatform.entity.Task;
 import com.wuyanteam.campustaskplatform.entity.User;
 import com.wuyanteam.campustaskplatform.entity.photoWall;
 import com.wuyanteam.campustaskplatform.service.UploadFileService;
@@ -21,8 +23,10 @@ private UserService userService;
 private UserDao userDao;
 @Resource
 private photoWallDao photoWallDao;
+@Resource
+private TaskDao taskDao;
     @Override
-    public User UpdateAvatar(String token, MultipartFile multipartFile) {
+    public User updateAvatar(String token, MultipartFile multipartFile) {
         if (multipartFile.getSize() > 16 * Constant.MB) {
             throw new RuntimeException("超出文件上传大小限制"  + "16MB");
         }
@@ -64,5 +68,21 @@ private photoWallDao photoWallDao;
         }
         photoWallDao.deleteById(id);
         return 1;
+    }
+    @Override
+    public void taskPhoto(Task task, MultipartFile multipartFile) {
+        if (multipartFile.getSize() > 16 * Constant.MB) {
+            throw new RuntimeException("超出文件上传大小限制"  + "16MB");
+        }
+        byte[] bytes;
+        try {
+            bytes = multipartFile.getBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to read file", e);
+        }
+        task.setPhoto(bytes);
+        taskDao.save(task);
+
     }
 }
