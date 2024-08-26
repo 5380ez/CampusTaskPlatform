@@ -92,7 +92,7 @@ public class MyPublishingTaskController {
             exp=exp-5;
             int flag=1;
             if(exp<0){
-                updateUser.setExp(0);
+               exp=0;
                 flag=0;
             }
             updateUser.setExp(exp);

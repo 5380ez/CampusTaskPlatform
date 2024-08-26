@@ -49,5 +49,5 @@ public class UTT
     private String title;
     private String description;
     private Timestamp finishTime;
-
+    private Boolean isLike;
 }

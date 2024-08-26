@@ -33,4 +33,7 @@ public class User {
     private int finishNum;
     private byte[] Avatar;
     private String signature;
+    private String verificationCode;
+
+
 }
