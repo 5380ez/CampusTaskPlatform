@@ -2,7 +2,9 @@ package com.wuyanteam.campustaskplatform.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.wuyanteam.campustaskplatform.entity.User;
+import com.wuyanteam.campustaskplatform.entity.UserDTO;
 import com.wuyanteam.campustaskplatform.entity.photoWall;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.UploadFileService;
@@ -64,21 +66,39 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public Result<User> myInfo(HttpServletRequest request){
-        String token = request.getHeader("Authorization");
+    public Result<List> myInfo(HttpServletRequest request){
+        /*String token = request.getHeader("Authorization");
         if(userService.InfoService(token)==null){
             return Result.error("123","token已失效");
         }
-        return Result.success(userService.InfoService(token));
+        return Result.success(userService.InfoService(token));*/
+        String token = request.getHeader("Authorization");
+        int id=userService.InfoService(token).getId();
+        MPJLambdaWrapper<User> wrapper = new MPJLambdaWrapper<User>()
+                .selectAll(User.class)
+                .rightJoin(photoWall.class,on -> on
+                        .eq(User::getId,photoWall::getUserId)
+                        .eq(User::getId,id));
+        return Result.success(userMapper.selectJoinList(UserDTO.class, wrapper)) ;
     }
     @GetMapping("/user/{id}")
     public List searchByName(@PathVariable int id)
     {
-        QueryWrapper<User> queryWrapper = new QueryWrapper();
+        /*QueryWrapper<User> queryWrapper = new QueryWrapper();
         queryWrapper.eq("id",id)
                 .select("id","username","sex","age","stu_id","exp","level","like_count",
-                        "publish_num","qq","email","phone");
-        return userMapper.selectList(queryWrapper);
+                        "publish_num","qq","email","phone","signature","avatar");
+        return userMapper.selectList(queryWrapper);*/
+
+        MPJLambdaWrapper<User> wrapper = new MPJLambdaWrapper<User>()
+                .select(User::getId,User::getUsername,User::getSex,User::getStuId,User::getExp,User::getLevel,User::getLikeCount
+                ,User::getPublishNum,User::getQq,User::getEmail,User::getPhone,User::getSignature,User::getAvatar)
+                .select(photoWall::getPhoto)
+                .rightJoin(photoWall.class,on -> on
+                        .eq(User::getId,photoWall::getUserId)
+                        .eq(User::getId,id));
+
+        return userMapper.selectJoinList(UserDTO.class, wrapper);
     }
     //修改用户信息
     @PostMapping("/user/setting")
@@ -105,6 +125,9 @@ public class UserController {
         }
         if (user.getPhone() != null) {
             updateWrapper.set("phone", user.getPhone());
+        }
+        if (user.getSignature() != null) {
+            updateWrapper.set("signature", user.getSignature());
         }
         // 执行更新操作
         int row = userMapper.update(null, updateWrapper);
