@@ -82,9 +82,6 @@ public class MyPublishingTaskController {
             queryWrapper.eq("id", id);
             Task task = taskMapper.selectOne(queryWrapper);
             int takerId=task.getPublisherId();
-//            QueryWrapper<User> queryWrapper1 = new QueryWrapper<>();
-//            queryWrapper1.eq("id",takerId);
-//            User user = userMapper.selectOne(queryWrapper1);
             // 假设要更新 ID 为 1 的用户的邮箱
             User updateUser = new User();
             updateUser.setId(takerId);
@@ -92,7 +89,7 @@ public class MyPublishingTaskController {
             exp=exp-5;
             int flag=1;
             if(exp<0){
-               exp=0;
+                exp=0;
                 flag=0;
             }
             updateUser.setExp(exp);

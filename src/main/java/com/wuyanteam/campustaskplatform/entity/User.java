@@ -31,9 +31,7 @@ public class User {
     private String email;
     private String phone;
     private int finishNum;
-    private byte[] Avatar;
+    private byte[] avatar;
     private String signature;
     private String verificationCode;
-
-
 }

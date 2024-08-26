@@ -2,7 +2,6 @@ package com.wuyanteam.campustaskplatform.service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuyanteam.campustaskplatform.entity.Task;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
@@ -21,29 +20,17 @@ import java.util.function.Function;
 public class TaskServiceImpl extends ServiceImpl<TaskMapper,Task> implements TaskService {
     public void checkAndSetTimeoutTasks() {
         // 查询所有状态为 "incomplete" 和 "un-taken" 的任务
-        QueryWrapper<Task> queryWrapper1 = new QueryWrapper<>();
-        queryWrapper1.in("state", "incomplete", "un-taken");
-        QueryWrapper<Task> queryWrapper2 = new QueryWrapper<>();
-        queryWrapper2.in("state", "unconfirmed");
+        QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("state", "incomplete", "un-taken");
 
-        List<Task> tasks1 = this.list(queryWrapper1);
-        List<Task> tasks2 = this.list(queryWrapper1);
+        List<Task> tasks = this.list(queryWrapper);
 
         // 遍历这些任务，检查是否已经超时
-        for (Task task : tasks1) {
+        for (Task task : tasks) {
             LocalDateTime now = LocalDateTime.now();
             Timestamp nowTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
             if (task.getDueTime().compareTo(nowTime) < 0) {
                 task.setState("timeout");
-                this.updateById(task);
-            }
-        }
-        for (Task task : tasks2) {
-            LocalDateTime ago30 = LocalDateTime.now().minusMinutes(30);
-            Timestamp ago30t = Timestamp.from(ago30.atZone(ZoneId.systemDefault()).toInstant());
-            if (ago30t.compareTo(task.getFinishTime()) >= 0)
-            {
-                task.setState("complete");
                 this.updateById(task);
             }
         }

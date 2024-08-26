@@ -16,7 +16,7 @@ public class TaskScheduler111 {
     /**
      * 定时任务，每5秒检查一次任务状态.
      */
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 2000)
     public void checkTasksForTimeout() {
         System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         taskService.checkAndSetTimeoutTasks();
