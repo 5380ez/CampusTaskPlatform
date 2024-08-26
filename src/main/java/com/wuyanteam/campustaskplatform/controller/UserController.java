@@ -68,11 +68,6 @@ public class UserController {
 
     @GetMapping("/user")
     public Result<List> myInfo(HttpServletRequest request){
-        /*String token = request.getHeader("Authorization");
-        if(userService.InfoService(token)==null){
-            return Result.error("123","token已失效");
-        }
-        return Result.success(userService.InfoService(token));*/
         String token = request.getHeader("Authorization");
         int id=userService.InfoService(token).getId();
         MPJQueryWrapper<User> wrapper = new MPJQueryWrapper<User>()
@@ -84,12 +79,6 @@ public class UserController {
     @GetMapping("/user/{id}")
     public List searchByName(@PathVariable int id)
     {
-        /*QueryWrapper<User> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",id)
-                .select("id","username","sex","age","stu_id","exp","level","like_count",
-                        "publish_num","qq","email","phone","signature","avatar");
-        return userMapper.selectList(queryWrapper);*/
-
         MPJLambdaWrapper<User> wrapper = new MPJLambdaWrapper<User>()
                 .select(User::getId,User::getUsername,User::getSex,User::getStuId,User::getExp,User::getLevel,User::getLikeCount
                 ,User::getPublishNum,User::getQq,User::getEmail,User::getPhone,User::getSignature,User::getAvatar)
@@ -102,7 +91,7 @@ public class UserController {
     }
     //修改用户信息
     @PostMapping("/user/setting")
-    public ResponseEntity<Object> setting(HttpServletRequest request, @RequestBody User user) {
+    public ResponseEntity<Object> setting(HttpServletRequest request, @RequestBody User user) {//邮箱无法修改
 
         // 验证 username 是否为空、仅包含空白字符或长度不符合要求
         String token = request.getHeader("Authorization");
@@ -120,9 +109,6 @@ public class UserController {
         if (user.getQq() != null) {
             updateWrapper.set("qq", user.getQq());
         }
-        if (user.getEmail() != null) {
-            updateWrapper.set("email", user.getEmail());
-        }
         if (user.getPhone() != null) {
             updateWrapper.set("phone", user.getPhone());
         }
@@ -137,6 +123,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("更新失败");
         }
     }
+
     @PostMapping("/login")
     public Result<User> login(@RequestBody User loginRequest) {
         String username = loginRequest.getUsername();
@@ -149,19 +136,18 @@ public class UserController {
             return Result.error("123","账号或密码错误!");
         }
     }
+
+    @PostMapping("/login/findPassword")//找回密码
+    public Result<User> FindPassword(@RequestBody User newUser) {//传入验证码，email，新密码
+        return userService.ResetPassword(newUser);
+    }
+
     //注册
     @PostMapping("/register")
     public Result<User> register(@RequestBody User newUser) {
-        if(newUser!=null){
-            User user=userService.RegisterService(newUser);
-            if(user!=null){
-                return Result.success(user,"注册成功！");
-            }else{
-                return Result.error("456","用户名已存在！");
-            }
+        if (newUser == null) {
+            return Result.error("传入用户为空");
         }
-        else{
-            return Result.error("456","传入用户为空");
-        }
+        return userService.RegisterService(newUser);
     }
 }

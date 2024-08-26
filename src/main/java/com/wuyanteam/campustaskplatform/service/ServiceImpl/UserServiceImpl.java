@@ -1,15 +1,16 @@
 package com.wuyanteam.campustaskplatform.service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuyanteam.campustaskplatform.Reposity.UserDao;
-import com.wuyanteam.campustaskplatform.entity.Task;
+import com.wuyanteam.campustaskplatform.Reposity.VcodeDao;
 import com.wuyanteam.campustaskplatform.entity.User;
-import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
+import com.wuyanteam.campustaskplatform.entity.Vcode;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.JWTUtils;
+import com.wuyanteam.campustaskplatform.utils.Result;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,7 +26,10 @@ import java.util.function.Function;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Resource
     private UserDao userDao;
-
+    @Resource
+    private VcodeDao vcodeDao;
+    @Autowired
+    private MailServiceImpl mailService;
     @Override
     public User LoginService(String username, String password) {
         User user = userDao.findByUsernameAndPassword(username, password);
@@ -41,12 +45,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public User RegisterService(User user) {
+    public Result<User> RegisterService(User user) {
         if (userDao.findByUsername(user.getUsername()) != null) {
             // 无法注册
-            return null;
+            return Result.error("用户名重复");
         } else {
-            //返回创建好的用户对象(带uid)
+            if(vcodeDao.findByCode(user.getVerificationCode())==null){
+                return Result.error("验证码错误");
+            }
+            Vcode vcode=vcodeDao.findByCode(user.getVerificationCode());
+            vcodeDao.deleteById(vcode.getId());
             user.setExp(0);
             user.setLevel(1);
             Date now = new Date();
@@ -62,13 +70,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (newUser != null) {
                 newUser.setPassword("");
             }
-            return newUser;
+            return Result.success(newUser);
         }
     }
 
     @Override
     public User InfoService(String token) {
         if (JWTUtils.verifyToken(token)) {
+            if(token.isEmpty()){
+                throw new IllegalArgumentException("token为空");
+            }
             String username = JWTUtils.getClaimsByToken(token).getSubject();
             if (username == null) {
                 System.out.println("Username is null.");
@@ -82,6 +93,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
         throw new IllegalArgumentException("token已过期");
+    }
+
+    @Override
+    public Result ResetPassword(User user) {//传入验证码，email，新密码
+        if(vcodeDao.findByCode(user.getVerificationCode())==null){
+            return Result.error("验证码错误");
+    }
+        Vcode vcode=vcodeDao.findByCode(user.getVerificationCode());
+        vcodeDao.deleteById(vcode.getId());
+        User newUser = userDao.findByEmail(user.getEmail());
+        newUser.setPassword(user.getPassword());
+        userDao.save(newUser);
+        return Result.success("新密码设定成功");
     }
 
     @Override
