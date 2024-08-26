@@ -145,25 +145,24 @@ public class TaskController {
         return result;
     }
     @PostMapping("/{task_id}/comment/delete")
-    public String deleteComment(HttpServletRequest request, @RequestBody Comment comment){
-        Comment commentSearch = commentMapper.selectById(comment.getId());
+    public String deleteComment(HttpServletRequest request,@PathVariable("task_id")int taskId){
+        Comment commentSearch = commentMapper.selectById(taskId);
         if(Objects.equals(userService.InfoService(request.getHeader("Authorization")).getId(), commentSearch.getCommentatorId()))
         {
-            commentMapper.deleteById(comment.getId());
+            commentMapper.deleteById(taskId);
             return "评论删除成功！";
         }else {
             return "删除失败！您无此权限！";
         }
     }
     //点赞功能
-    @PostMapping("/task_id/is_like")
-    public Result isLikeUpdate(HttpServletRequest request, @RequestBody Task task)
+    @PostMapping("/{task_id}/is_like")
+    public Result isLikeUpdate(HttpServletRequest request,@PathVariable("task_id")int taskId)
     {
         System.out.println(taskService);
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         UpdateWrapper<Task> updateWrapper = new UpdateWrapper<>();
         //根据taskId获得任务
-        int taskId = task.getId();
         Task task1 = taskService.getById(taskId);
         //Task task = taskMapper.selectById(taskId);
         //获得taskerId,再根据takerId增加taker的点赞数
@@ -197,12 +196,11 @@ public class TaskController {
     }
     //任务发布者和任务接收者删除或取消任务
     @PostMapping("/take_id/deleteTask")
-    public Result deleteTask(HttpServletRequest request, @RequestBody Task task)
+    public Result deleteTask(HttpServletRequest request, @PathVariable("task_id")int taskId)
     {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         UpdateWrapper<Task> updateWrapper = new UpdateWrapper<>();
         //根据taskId获得任务
-        int taskId = task.getId();
         Task task1 = taskService.getById(taskId);
         //Task task = taskMapper.selectById(taskId);
         //获得taskerId,再根据takerId增加taker的点赞数
