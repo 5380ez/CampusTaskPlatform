@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.annotation.Retention;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -46,7 +47,6 @@ public class TaskController {
     public List<UTT> taskInformation(HttpServletRequest request, @PathVariable("task_id") int taskId) {
         // 查询任务信息
         List<UTT> list;
-        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         list = taskMapper.selectJoinList(
                 UTT.class,
                 new MPJQueryWrapper<Task>().select("u1.username as publisherUsername", "u1.sex as publisherSex",
@@ -182,29 +182,25 @@ public class TaskController {
         System.out.println(takerId);
         System.out.println(uid);
         if(takerId==uid){
-            return Result.error("404","你不能给自己点赞");
+            return Result.error("400","你不能给自己点赞");
         }
-        if(takerId == null){
-            return Result.error("405","任务未被接受");
+        else if(takerId == null){
+            return Result.error("402","任务未被接受");
         }
-        if(takerId!=uid) {
-            User user = userMapper.selectById(takerId);
-            int like = user.getLikeCount();
-            System.out.println(like);
-            like = like + 1;
-            System.out.println(like);
-            User updateUser = new User();
-            updateUser.setId(takerId);
-            updateUser.setLikeCount(like);
-            int rows = userMapper.updateById(updateUser); // 调用 updateById 方法
-            if (rows > 0) {
-                System.out.println("User updated successfully.");
-            } else {
-                System.out.println("No user updated.");
-            }
+        User user = userMapper.selectById(takerId);
+        int like = user.getLikeCount();
+        int exp = user.getExp();
+        like = like + 1;
+        exp += 4;
+        User updateUser = new User();
+        updateUser.setId(takerId);
+        updateUser.setExp(exp);
+        updateUser.setLikeCount(like);
+        int rows = userMapper.updateById(updateUser); // 调用 updateById 方法
+        if (rows > 0) {
             return Result.success("点赞成功");
         }
-        return Result.error("403","未检测到操作");
+        return Result.error("403","点赞失败");
     }
     //任务发布者和任务接收者删除或取消任务
     @PostMapping("/{task_id}/delete")
@@ -293,7 +289,7 @@ public class TaskController {
                 return Result.error("402","任务已超时！");
             }
             UpdateWrapper<Task> updateWrapper= new UpdateWrapper<>();
-            updateWrapper.eq("id",taskId).set("state","unconfirmed");
+            updateWrapper.eq("id",taskId).set("state","unconfirmed").set("finishTime",nowTime);
             int row = taskMapper.update(null,updateWrapper);
             if(row > 0)
             {
@@ -309,5 +305,55 @@ public class TaskController {
         {
             return Result.error("401","无权限");
         }
+    }
+    @PostMapping("/{task_id}/confirm")
+    public Result confirm(HttpServletRequest request,@PathVariable("task_id") int taskId)
+    {
+        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
+        Task task = taskService.getById(taskId);
+        User user = userService.getById(uid);
+        if(uid == task.getPublisherId())
+        {
+            if(task.getState() != "unconfirmed")
+            {
+                return Result.error("402","任务状态异常");
+            }
+            UpdateWrapper<Task> updateWrapper= new UpdateWrapper<>();
+            updateWrapper.eq("id",taskId).set("state","complete");
+            int exp = user.getExp();
+            float balance = user.getBalance();
+            exp += 8;
+            balance += task.getReward();
+            updateWrapper.eq("id",taskId).set("state","complete").set("exp",exp).set("balance",balance);
+            int row = taskMapper.update(null,updateWrapper);
+            if(row > 0)
+            {
+                return Result.success("已确认任务完成");
+            }
+            return Result.error("403","确认失败");
+        }
+        return Result.error("401","无权限");
+    }
+    @PostMapping("/{task_id}/refuse")
+    public Result refuse(HttpServletRequest request,@PathVariable("task_id") int taskId,@RequestBody Task t)
+    {
+        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
+        Task task = taskService.getById(taskId);
+        if(uid == task.getPublisherId())
+        {
+            if(task.getState() != "unconfirmed")
+            {
+                return Result.error("402","任务状态异常");
+            }
+            UpdateWrapper<Task> updateWrapper= new UpdateWrapper<>();
+            updateWrapper.eq("id",taskId).set("state","incomplete").set("dueTime",t.getDueTime());
+            int row = taskMapper.update(null,updateWrapper);
+            if(row > 0)
+            {
+                return Result.success("已拒绝任务完成申请，任务将继续");
+            }
+            return Result.error("403","拒绝失败");
+        }
+        return Result.error("401","无权限");
     }
 }
