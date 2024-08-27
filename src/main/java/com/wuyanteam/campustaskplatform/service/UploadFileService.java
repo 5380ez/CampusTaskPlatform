@@ -12,5 +12,5 @@ public interface UploadFileService {
    User uploadAvatar(String token, MultipartFile multipartFile);
    photoWall updatePhotoWall(String token, MultipartFile multipartFile);
     int deletePhotoWall(int id);
-   void taskPhoto(Task task, MultipartFile multipartFile);
+    void taskPhoto(Task task, MultipartFile multipartFile);
 }

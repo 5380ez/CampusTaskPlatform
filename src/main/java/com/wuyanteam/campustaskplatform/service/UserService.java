@@ -10,4 +10,5 @@ public interface UserService extends MPJDeepService<User>
     Result<User> RegisterService(User user);
     User InfoService(String token);
     Result ResetPassword(User user);
+    void UpdateLevelService();
 }

@@ -171,6 +171,12 @@ public class TaskController {
         }
     }
     //任务点赞功能
+    @GetMapping("/{task_id}/like")
+    public boolean Like(@PathVariable("task_id")int taskId)
+    {
+        Task task = taskService.getById(taskId);
+        return task.getIsLike();
+    }
     @PostMapping("/{task_id}/like")
     public Result isLikeUpdate(HttpServletRequest request,@PathVariable("task_id")int taskId)
     {
