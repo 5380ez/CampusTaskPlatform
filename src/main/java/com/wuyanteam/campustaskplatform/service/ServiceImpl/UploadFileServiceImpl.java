@@ -38,7 +38,7 @@ private TaskDao taskDao;
             e.printStackTrace();
             throw new RuntimeException("Failed to read file", e);
         }
-        user.setAvatar(bytes);
+        //user.setAvatar(bytes);
         userDao.save(user);
         return user;
     }
