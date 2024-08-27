@@ -2,11 +2,9 @@ package com.wuyanteam.campustaskplatform.service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuyanteam.campustaskplatform.Reposity.UserDao;
 import com.wuyanteam.campustaskplatform.Reposity.VcodeDao;
-import com.wuyanteam.campustaskplatform.entity.Task;
 import com.wuyanteam.campustaskplatform.entity.User;
 import com.wuyanteam.campustaskplatform.entity.Vcode;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
@@ -19,8 +17,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 
@@ -54,6 +50,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } else {
             if(vcodeDao.findByCode(user.getVerificationCode())==null){
                 return Result.error("验证码错误");
+            }
+            if(userDao.findByEmail(user.getEmail())!=null){
+                return Result.error("该邮箱已被注册");
             }
             Vcode vcode=vcodeDao.findByCode(user.getVerificationCode());
             vcodeDao.deleteById(vcode.getId());

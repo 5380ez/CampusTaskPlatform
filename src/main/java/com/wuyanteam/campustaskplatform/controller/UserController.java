@@ -2,10 +2,7 @@ package com.wuyanteam.campustaskplatform.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.github.yulichang.query.MPJQueryWrapper;
-import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.wuyanteam.campustaskplatform.entity.User;
-import com.wuyanteam.campustaskplatform.entity.UserDTO;
 import com.wuyanteam.campustaskplatform.entity.photoWall;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.PhotoWallService;
