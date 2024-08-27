@@ -12,10 +12,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 
 public class JWTUtils {
-    @Value("${JwT.expire}")
-    private static long expire;
-    @Value("${JwT.secret}")
-    private static String secret;
+    private static long expire=86400;
+    private static String secret="hgifdsijvrghpfdefqzjygcinfrtvguj";
 
     //生成token
     public static String generateToken(String uname){
