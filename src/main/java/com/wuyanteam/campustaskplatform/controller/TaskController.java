@@ -285,6 +285,7 @@ public class TaskController {
             String state = task1.getState();
             boolean result = taskService.remove(queryWrapper); // 调用 remove 方法
             if (result) {
+                //如果task状态为incomplete会扣除任务发布者5经验值惩罚
                 if(state.equals("incomplete")){
                     // 假设有一个 User 实体对象，设置更新字段为 email，根据 ID 更新
                     User user = userMapper.selectById(publisherId);
@@ -294,7 +295,8 @@ public class TaskController {
                     exp -=5;
                     User updateEntity = new User();
                     if(exp<0){
-                        updateEntity.setExp(0);
+                        exp=0;
+                        updateEntity.setExp(exp);
                         flag=0;
                     }
                     System.out.println(exp+"  falg");
@@ -306,11 +308,13 @@ public class TaskController {
                     boolean result2 = userService.update(updateEntity, whereWrapper);
                     if (result2) {
                         System.out.println("Record updated successfully.");
+                        HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
+                        map.put(publisherId,exp);
                         if(flag==0){
-                            return  Result.success("你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
+                            return  Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
                         }
                         if(flag==1){
-                            return Result.success("你发布的任务已删除,但由于删除已接受任务，扣5经验");
+                            return Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验");
                         }
                     } else {
                         System.out.println("Failed to update record.");
@@ -324,16 +328,44 @@ public class TaskController {
             }
 
         }
-        if(takerId == uid){
-            UpdateWrapper<Task> updateWrapper1 = new UpdateWrapper<>();
-            updateWrapper1.eq("id", taskId).set("state", "un-taken");
-            boolean result1 = taskService.update(updateWrapper1); // 调用 update 方法
-            if (result1) {
+        if (takerId == uid) {
+            User user = userMapper.selectById(takerId);
+            int exp = user.getExp() - 5;
+
+            User updateEntity = new User();
+            updateEntity.setId(takerId);
+            updateEntity.setExp(Math.max(0, exp)); // 若经验值小于0，则设置为0
+
+            int flag = exp < 0 ? 0 : 1; // 根据经验值是否小于0来设置flag
+            //设置exp小于0为0，可以让前台接受
+            if(exp<0){
+                exp = 0;
+            }
+            UpdateWrapper<Task> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("id", taskId)
+                    .set("state", "un-taken")
+                    .set("taker_id", null);
+
+            boolean result = taskService.update(updateWrapper);
+
+            if (result) {
+                // 更新用户经验值
+                userMapper.updateById(updateEntity); // 不论flag为何值都更新数据库中的用户信息
+                HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
+                map.put(takerId,exp);
+                String message;
+                if (flag == 0) {
+                    message = "你接受的任务已取消，经验值减5，且当前经验值已经为0";
+                } else {
+                    message = "你接受的任务已取消，经验值减5";
+                }
+
                 System.out.println("Record updated successfully.");
+                return Result.success(map,message);
             } else {
                 System.out.println("Failed to update record.");
+                return Result.error("更新失败", "未能成功取消任务");
             }
-            return Result.success("你接受的任务已取消");
         }
         return Result.error("403","未检测到操作");
     }
