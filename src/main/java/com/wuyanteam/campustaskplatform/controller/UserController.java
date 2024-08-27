@@ -34,7 +34,7 @@ public class UserController {
     private UploadFileService uploadFile;
     @Resource
     PhotoWallService photoWallService;
-    @PostMapping("/user/setting/changeAvatar")
+    /*@PostMapping("/user/setting/changeAvatar")
     public Result<User> upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         if(file.isEmpty()){
             return Result.error("上传失败，文件为空");
@@ -45,7 +45,7 @@ public class UserController {
             return Result.error("头像更新失败");
         }
         return Result.success(user);
-    }
+    }*/
 
     @PostMapping("/user/setting/updatePhotoWall")
     public Result<photoWall> uploadPhotoWall(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
@@ -58,6 +58,12 @@ public class UserController {
             return Result.error("照片墙更新失败");
         }
         return Result.success(photowall);
+    }
+    @Resource
+    private UploadFileService uploadFileTool;
+    @PostMapping("/changeAvatar")
+    public Result<User> uploadavatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        return Result.success(uploadFileTool.uploadAvatar(request.getHeader("Authorization"),file));
     }
 
     @DeleteMapping("/user/setting/deletePhotoWall/{id}")
