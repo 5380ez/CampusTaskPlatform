@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
 import com.sun.org.apache.xpath.internal.operations.Mult;
 import com.wuyanteam.campustaskplatform.entity.*;
+import com.wuyanteam.campustaskplatform.mapper.CommentLikeMapper;
 import com.wuyanteam.campustaskplatform.mapper.CommentMapper;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
@@ -42,7 +43,7 @@ public class TaskController {
     @Autowired
     private CommentService commentService;
     @Autowired
-    private UploadFileService uploadFileService;
+    private CommentLikeMapper commentLikeMapper;
     @GetMapping("/{task_id}")
     public List<UTT> taskInformation(HttpServletRequest request, @PathVariable("task_id") int taskId) {
         // 查询任务信息
@@ -66,11 +67,6 @@ public class TaskController {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         UpdateWrapper<Task> updateWrapper = new UpdateWrapper<>();
         Task task = taskService.getById(taskId);
-        if (task == null)
-        {
-            System.out.println("null");
-        }
-        System.out.println(task);
         updateWrapper.eq("id", taskId);
         if (task.getPublisherId() == uid) {
             return Result.error("401","不能接受自己发布的任务！");
@@ -175,10 +171,10 @@ public class TaskController {
         }
     }
     //任务点赞功能
+    //任务点赞功能
     @PostMapping("/{task_id}/like")
     public Result isLikeUpdate(HttpServletRequest request,@PathVariable("task_id")int taskId)
     {
-        System.out.println(taskService);
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         //根据taskId获得任务
         Task task = taskService.getById(taskId);
@@ -197,18 +193,11 @@ public class TaskController {
         if(takerId!=uid && isLike==false) {
             User user = userMapper.selectById(takerId);
             int like = user.getLikeCount();
-            System.out.println(like);
             like = like + 1;
-            System.out.println(like);
             User updateUser = new User();
             updateUser.setId(takerId);
             updateUser.setLikeCount(like);
-            int rows = userMapper.updateById(updateUser); // 调用 updateById 方法
-            if (rows > 0) {
-                System.out.println("User updated successfully.");
-            } else {
-                System.out.println("No user updated.");
-            }
+            userMapper.updateById(updateUser); // 调用 updateById 方法
             UpdateWrapper<Task> updateWrapper1 = new UpdateWrapper<>();
             updateWrapper1.eq("id", taskId).set("is_like", true);
             taskService.update(updateWrapper1);
@@ -243,18 +232,11 @@ public class TaskController {
         if(takerId!=uid && isLike) {
             User user = userMapper.selectById(takerId);
             int like = user.getLikeCount();
-            System.out.println(like);
             like = like - 1;
-            System.out.println(like);
             User updateUser = new User();
             updateUser.setId(takerId);
             updateUser.setLikeCount(like);
-            int rows = userMapper.updateById(updateUser); // 调用 updateById 方法
-            if (rows > 0) {
-                System.out.println("User updated successfully.");
-            } else {
-                System.out.println("No user updated.");
-            }
+            userMapper.updateById(updateUser); // 调用 updateById 方法
             UpdateWrapper<Task> updateWrapper1 = new UpdateWrapper<>();
             updateWrapper1.eq("id", taskId).set("is_like", false);
             taskService.update(updateWrapper1);
@@ -270,15 +252,9 @@ public class TaskController {
     public Result deleteTask(HttpServletRequest request, @PathVariable("task_id")int taskId)
     {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
-        //根据taskId获得任务
         Task task1 = taskService.getById(taskId);
-        //Task task = taskMapper.selectById(taskId);
-        //获得takerId,再根据takerId增加taker的点赞数
         Integer publisherId = task1.getPublisherId();
         Integer takerId = task1.getTakerId();
-        System.out.println(publisherId);
-        System.out.println(uid);
-        System.out.println(takerId);
         if(publisherId==uid){
             QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("id", taskId);
@@ -291,7 +267,6 @@ public class TaskController {
                     User user = userMapper.selectById(publisherId);
                     int flag=1;
                     int exp=user.getExp();
-                    System.out.println(exp);
                     exp -=5;
                     User updateEntity = new User();
                     if(exp<0){
@@ -299,7 +274,6 @@ public class TaskController {
                         updateEntity.setExp(exp);
                         flag=0;
                     }
-                    System.out.println(exp+"  falg");
                     if(flag==1) {
                         updateEntity.setExp(exp);
                     }
@@ -307,8 +281,7 @@ public class TaskController {
                     whereWrapper.eq("id", publisherId);
                     boolean result2 = userService.update(updateEntity, whereWrapper);
                     if (result2) {
-                        System.out.println("Record updated successfully.");
-                        HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
+                        HashMap<Integer,Integer>map = new HashMap<>();
                         map.put(publisherId,exp);
                         if(flag==0){
                             return  Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
@@ -316,17 +289,11 @@ public class TaskController {
                         if(flag==1){
                             return Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验");
                         }
-                    } else {
-                        System.out.println("Failed to update record.");
                     }
                 }
-                System.out.println("Record deleted successfully.");
                 return Result.success("你发布的任务已删除");
-            } else {
-                System.out.println("Failed to delete record.");
-                return Result.error("406","删除失败");
             }
-
+            return Result.error("406","删除失败");
         }
         if (takerId == uid) {
             User user = userMapper.selectById(takerId);
@@ -347,7 +314,6 @@ public class TaskController {
                     .set("taker_id", null);
 
             boolean result = taskService.update(updateWrapper);
-
             if (result) {
                 // 更新用户经验值
                 userMapper.updateById(updateEntity); // 不论flag为何值都更新数据库中的用户信息
@@ -359,13 +325,9 @@ public class TaskController {
                 } else {
                     message = "你接受的任务已取消，经验值减5";
                 }
-
-                System.out.println("Record updated successfully.");
                 return Result.success(map,message);
-            } else {
-                System.out.println("Failed to update record.");
-                return Result.error("更新失败", "未能成功取消任务");
             }
+            return Result.error("更新失败", "未能成功取消任务");
         }
         return Result.error("403","未检测到操作");
     }
@@ -444,51 +406,63 @@ public class TaskController {
         }
         return Result.error("401","无权限");
     }
-    @PostMapping("/{task_id}/comment/isLike")
-    public Result commentIsLike(HttpServletRequest request, @PathVariable("task_id") int taskId,@RequestBody Comment c )
-    {
-        int id = c.getId();
-        System.out.println(id);
+    @PostMapping("/{task_id}/comment/like")
+    public Result commentIsLike(HttpServletRequest request, @RequestParam int id) {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
-        System.out.println(uid);
-        //根据commentId获得评论
-        Comment comment = commentMapper.selectById(id);
-        int like = comment.getLikeNum();
-        System.out.println(like);
-        like = like + 1;
-        System.out.println(like);
-        UpdateWrapper<Comment> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", id).set("like_num", like);
-        boolean result = commentService.update(updateWrapper); // 调用 update 方法
-        if (result) {
-            System.out.println("Record updated successfully.");
-            return Result.success("点赞成功");
+        int commentId = id;
+        //flag用于最后判断是点赞还是取消点赞，1为点赞，0为取消
+        int flag=1;
+        // 查询是否已有对应的点赞记录
+        QueryWrapper<CommentLike> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("comment_id", commentId)
+                .eq("user_id", uid);
+        CommentLike existingLike = commentLikeMapper.selectOne(queryWrapper);
+        if (existingLike == null) {
+            // 如果记录不存在，则插入新记录
+            // 创建CommentLike对象
+            CommentLike commentLike = new CommentLike();
+            commentLike.setUserId(uid);
+            commentLike.setCommentId(id);
+            commentLike.setIsLike(true); // 设置为true表示点赞
+            commentLikeMapper.insert(commentLike);
         } else {
-            System.out.println("Failed to update record.");
-            return Result.error("414","点赞失败");
+            // 如果记录已存在，则检查是否已经点赞过
+            if (existingLike.getIsLike()) {
+                // 如果已经点赞，则更新isLike为false
+                existingLike.setIsLike(false);
+                commentLikeMapper.updateById(existingLike);
+                flag = 0;
+            } else {
+                // 如果之前没有点赞，则更新isLike为true
+                existingLike.setIsLike(true);
+                commentLikeMapper.updateById(existingLike);
+            }
         }
-    }
-    //取消点赞功能
-    @PostMapping("/{task_id}/comment/notLike")
-    public Result commentNotLike(HttpServletRequest request, @PathVariable("task_id") int taskId,@RequestBody Comment c )
-    {
-        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
-        //根据commentId获得评论
-        int id = c.getId();
-        Comment comment = commentMapper.selectById(id);
+        // 根据commentId获取评论，并更新评论的点赞数,根据flag判断点赞或取消点赞,isLike用于返回给前端点赞或取消点赞操作
+        Comment comment = commentMapper.selectById(commentId);
         int like = comment.getLikeNum();
-        System.out.println(like);
-        like = like - 1;
-        System.out.println(like);
+        Boolean isLike = true;
+        if (flag==1) {
+            like++;
+        }
+        else {
+            isLike = false;
+            like--;
+        }
+        // 更新点赞数到Comment表中
         UpdateWrapper<Comment> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", id).set("like_num", like);
-        boolean result = commentService.update(updateWrapper); // 调用 update 方法
+        updateWrapper.eq("id", commentId).set("like_num", like);
+        boolean result = commentService.update(updateWrapper);
         if (result) {
-            System.out.println("Record updated successfully.");
-            return Result.success("取消点赞成功");
+            // 点赞成功后，返回给前端true和点赞数，以及该评论对应的Id
+            List<Object> list = new ArrayList<>();
+            list.add(isLike);
+            list.add(like);
+            HashMap<Integer, List<Object>> map = new HashMap<>();
+            map.put(commentId, list);
+            return Result.success(map, "操作成功");
         } else {
-            System.out.println("Failed to update record.");
-            return Result.error("414","取消点赞失败");
+            return Result.error("414", "操作失败");
         }
     }
 }
