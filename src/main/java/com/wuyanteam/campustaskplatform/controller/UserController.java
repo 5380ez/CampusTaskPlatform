@@ -8,6 +8,7 @@ import com.wuyanteam.campustaskplatform.entity.User;
 import com.wuyanteam.campustaskplatform.entity.UserDTO;
 import com.wuyanteam.campustaskplatform.entity.photoWall;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
+import com.wuyanteam.campustaskplatform.service.PhotoWallService;
 import com.wuyanteam.campustaskplatform.service.UploadFileService;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.JWTUtils;
@@ -31,7 +32,8 @@ public class UserController {
     private UserService userService;
     @Resource
     private UploadFileService uploadFile;
-
+    @Resource
+    PhotoWallService photoWallService;
     @PostMapping("/user/setting/changeAvatar")
     public Result<User> upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         if(file.isEmpty()){
@@ -44,7 +46,6 @@ public class UserController {
         }
         return Result.success(user);
     }
-
 
     @PostMapping("/user/setting/updatePhotoWall")
     public Result<photoWall> uploadPhotoWall(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
@@ -67,28 +68,33 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public Result<List> myInfo(HttpServletRequest request){
+    public Result<User> myInfo(HttpServletRequest request){
         String token = request.getHeader("Authorization");
-        int id=userService.InfoService(token).getId();
-        MPJQueryWrapper<User> wrapper = new MPJQueryWrapper<User>()
-                .selectAll(User.class).select("photo_wall.photo")
-                .leftJoin("photo_wall on photo_wall.user_id = t.id")
-                .eq("t.id",id);
-        return Result.success(userMapper.selectJoinList(UserDTO.class, wrapper)) ;
+        if(userService.InfoService(token)==null){
+            return Result.error("123","token已失效");
+        }
+        return Result.success(userService.InfoService(token));
     }
+    @GetMapping("/user/photowall")
+    public Result<List> myphotowall(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        return photoWallService.findPhotoWall(userService.InfoService(token).getId());
+    }
+
     @GetMapping("/user/{id}")
     public List searchByName(@PathVariable int id)
     {
-        MPJLambdaWrapper<User> wrapper = new MPJLambdaWrapper<User>()
-                .select(User::getId,User::getUsername,User::getSex,User::getStuId,User::getExp,User::getLevel,User::getLikeCount
-                ,User::getPublishNum,User::getQq,User::getEmail,User::getPhone,User::getSignature,User::getAvatar)
-                .select(photoWall::getPhoto)
-                .leftJoin(photoWall.class,on -> on
-                        .eq(User::getId,photoWall::getUserId)
-                        .eq(User::getId,id));
-
-        return userMapper.selectJoinList(UserDTO.class, wrapper);
+        QueryWrapper<User> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("id",id)
+                .select("id","username","sex","age","stu_id","exp","level","like_count",
+                        "publish_num","qq","email","phone","signature","avatar");
+        return userMapper.selectList(queryWrapper);
     }
+    @GetMapping("/user/{id}/photowall")
+    public Result<List> findphotowall(@PathVariable int id) {
+        return photoWallService.findPhotoWall(id);
+    }
+
     //修改用户信息
     @PostMapping("/user/setting")
     public ResponseEntity<Object> setting(HttpServletRequest request, @RequestBody User user) {//邮箱无法修改
@@ -150,4 +156,5 @@ public class UserController {
         }
         return userService.RegisterService(newUser);
     }
+
 }
