@@ -26,7 +26,7 @@ public class UserDTO {
     private String email;
     private String phone;
     private int finishNum;
-    private byte[] avatar;
+    private String avatarPath;
     private String signature;
-    private byte[] photo;//照片墙
+    private String photoPath;//照片墙
 }

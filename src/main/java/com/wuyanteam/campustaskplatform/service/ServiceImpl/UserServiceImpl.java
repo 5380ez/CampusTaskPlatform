@@ -1,6 +1,7 @@
 package com.wuyanteam.campustaskplatform.service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuyanteam.campustaskplatform.Reposity.UserDao;
 import com.wuyanteam.campustaskplatform.Reposity.VcodeDao;
@@ -16,10 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -52,6 +50,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } else {
             if(vcodeDao.findByCode(user.getVerificationCode())==null){
                 return Result.error("验证码错误");
+            }
+            if(userDao.findByEmail(user.getEmail())!=null){
+                return Result.error("该邮箱已被注册");
             }
             Vcode vcode=vcodeDao.findByCode(user.getVerificationCode());
             vcodeDao.deleteById(vcode.getId());
@@ -106,6 +107,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         newUser.setPassword(user.getPassword());
         userDao.save(newUser);
         return Result.success("新密码设定成功");
+    }
+    @Override
+    public void UpdateLevelService()
+    {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        List<User> users = this.list(queryWrapper);
+        for (User user : users) {
+            int exp = user.getExp();
+            int level = exp / 50;
+            user.setLevel(level);
+            this.updateById(user);
+        }
     }
 
     @Override

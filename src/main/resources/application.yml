@@ -1,4 +1,7 @@
 spring:
+  web:
+    resources:
+      static-locations: classpath:/static/
   mail:
     # 发送者邮箱
     username: 2065343055@qq.com
@@ -17,3 +20,8 @@ spring:
           #表示开启 DEBUG 模式，这样，邮件发送过程的日志会在控制台打印出来，方便排查错误
           debug: true
           ssl: true
+
+uploadFile:
+    maxSize: 10
+    path: D:/20653/Documents/beifen5/CampusTaskPlatform/target/classes/static/upload/
+

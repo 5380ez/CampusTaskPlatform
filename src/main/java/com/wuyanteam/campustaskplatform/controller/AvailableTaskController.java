@@ -54,11 +54,9 @@ public class AvailableTaskController {
 
         // 直接使用 isDesc 的值来确定排序方式
         if (isDesc) {
-            iPage = taskMapper.selectJoinPage(new Page<>(page, 10), UTT.class, queryWrapper.orderByDesc(sortOrder));
-            System.out.println("desc");
+            iPage = taskMapper.selectJoinPage(new Page<>(page, 10), UTT.class, queryWrapper.orderByDesc(sortOrder).orderByDesc("exp"));
         } else {
-            iPage = taskMapper.selectJoinPage(new Page<>(page, 10), UTT.class, queryWrapper.orderByAsc(sortOrder));
-            System.out.println("asc");
+            iPage = taskMapper.selectJoinPage(new Page<>(page, 10), UTT.class, queryWrapper.orderByAsc(sortOrder).orderByDesc("exp"));
         }
 
         return iPage;
