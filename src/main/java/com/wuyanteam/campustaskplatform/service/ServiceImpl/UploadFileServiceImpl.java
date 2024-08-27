@@ -1,7 +1,6 @@
 package com.wuyanteam.campustaskplatform.service.ServiceImpl;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ObjectUtil;
 import com.wuyanteam.campustaskplatform.Reposity.TaskDao;
 import com.wuyanteam.campustaskplatform.Reposity.UploadFileDao;
 import com.wuyanteam.campustaskplatform.Reposity.UserDao;
@@ -9,7 +8,6 @@ import com.wuyanteam.campustaskplatform.entity.Task;
 import com.wuyanteam.campustaskplatform.entity.UploadFile;
 import com.wuyanteam.campustaskplatform.entity.User;
 import com.wuyanteam.campustaskplatform.entity.photoWall;
-import com.wuyanteam.campustaskplatform.service.TaskService;
 import com.wuyanteam.campustaskplatform.service.UploadFileService;
 import com.wuyanteam.campustaskplatform.service.UserService;
 import com.wuyanteam.campustaskplatform.utils.Constant;
@@ -63,18 +61,12 @@ private TaskDao taskDao;
         String fileName = primaryName + nowStr + "." + extension;
 
         try {
-            String filePath = path + type + File.separator + fileName;
-            File dest = new File(filePath).getCanonicalFile();
-            if (!dest.getParentFile().exists()) {
-                if (ObjectUtil.isNull(dest.getParentFile().mkdirs())) {
-                    throw new RuntimeException("上传文件失败：建立目录错误");
-                }
+            File saveFile = new File(path,fileName);
+            if(!saveFile.getParentFile().exists()){
+                saveFile.getParentFile().mkdirs();
             }
-            multipartFile.transferTo(dest);
-            if (ObjectUtil.isNull(dest)) {
-                throw new RuntimeException("上传文件失败");
-            }
-            String avatarPath=path.substring(filePath.lastIndexOf("upload")-1)+fileName;
+            multipartFile.transferTo(saveFile);
+            String avatarPath=path.substring(path.lastIndexOf("upload")-1)+fileName;
             System.out.println(avatarPath);
             UploadFile uploadFile = new UploadFile(null, fileName, primaryName,
                     extension, avatarPath, type, multipartFile.getSize(),
@@ -108,19 +100,13 @@ private TaskDao taskDao;
         String nowStr = "-" + date.format(format);
         String fileName = primaryName + nowStr + "." + extension;
 
-        try {
-            String filePath = path + type + File.separator + fileName;
-            File dest = new File(filePath).getCanonicalFile();
-            if (!dest.getParentFile().exists()) {
-                if (ObjectUtil.isNull(dest.getParentFile().mkdirs())) {
-                    throw new RuntimeException("上传文件失败：建立目录错误");
-                }
+       try {
+            File saveFile = new File(path,fileName);
+            if(!saveFile.getParentFile().exists()){
+                saveFile.getParentFile().mkdirs();
             }
-            multipartFile.transferTo(dest);
-            if (ObjectUtil.isNull(dest)) {
-                throw new RuntimeException("上传文件失败");
-            }
-            String avatarPath=path.substring(filePath.lastIndexOf("upload")-1)+fileName;
+            multipartFile.transferTo(saveFile);
+            String avatarPath=path.substring(path.lastIndexOf("upload")-1)+fileName;
             System.out.println(avatarPath);
             UploadFile uploadFile = new UploadFile(null, fileName, primaryName,
                     extension, avatarPath, type, multipartFile.getSize(),
@@ -153,19 +139,13 @@ private TaskDao taskDao;
         String nowStr = "-" + date.format(format);
         String fileName = primaryName + nowStr + "." + extension;
 
-        try {
-            String filePath = path + type + File.separator + fileName;
-            File dest = new File(filePath).getCanonicalFile();
-            if (!dest.getParentFile().exists()) {
-                if (ObjectUtil.isNull(dest.getParentFile().mkdirs())) {
-                    throw new RuntimeException("上传文件失败：建立目录错误");
-                }
+       try {
+            File saveFile = new File(path,fileName);
+            if(!saveFile.getParentFile().exists()){
+                saveFile.getParentFile().mkdirs();
             }
-            multipartFile.transferTo(dest);
-            if (ObjectUtil.isNull(dest)) {
-                throw new RuntimeException("上传文件失败");
-            }
-            String avatarPath=path.substring(filePath.lastIndexOf("upload")-1)+fileName;
+            multipartFile.transferTo(saveFile);
+            String avatarPath=path.substring(path.lastIndexOf("upload")-1)+fileName;
             System.out.println(avatarPath);
             UploadFile uploadFile = new UploadFile(null, fileName, primaryName,
                     extension, avatarPath, type, multipartFile.getSize(),

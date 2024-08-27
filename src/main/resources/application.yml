@@ -1,4 +1,7 @@
 spring:
+  web:
+    resources:
+      static-locations: classpath:/static/
   mail:
     # 发送者邮箱
     username: 2065343055@qq.com
