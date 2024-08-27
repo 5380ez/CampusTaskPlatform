@@ -334,7 +334,7 @@ public class TaskController {
         return Result.error("403","未检测到操作");
     }
     @PostMapping("/{task_id}/requestConfirm")
-    public Result requestConfirm(HttpServletRequest request, @PathVariable("task_id") int taskId, @RequestParam("file")MultipartFile file)
+    public Result requestConfirm(HttpServletRequest request, @PathVariable("task_id") int taskId)
     {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         //根据taskId获得任务
@@ -352,18 +352,61 @@ public class TaskController {
             int row = taskMapper.update(null,updateWrapper);
             if(row > 0)
             {
-                uploadFileService.taskPhoto(task,file);
                 return Result.success("已提交完成申请");
             }
-            else
-            {
-                return Result.error("403","提交失败");
-            }
+            return Result.error("403","提交失败");
         }
-        else
+        return Result.error("401","无权限");
+    }
+    @PostMapping("/{task_id}/confirm")
+    public Result confirm(HttpServletRequest request,@PathVariable("task_id") int taskId)
+    {
+        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
+        Task task = taskService.getById(taskId);
+        User user = userService.getById(uid);
+        if(uid == task.getPublisherId())
         {
-            return Result.error("401","无权限");
+            if(task.getState() != "unconfirmed")
+            {
+                return Result.error("402","任务状态异常");
+            }
+            UpdateWrapper<Task> updateWrapper= new UpdateWrapper<>();
+            updateWrapper.eq("id",taskId).set("state","complete");
+            int exp = user.getExp();
+            float balance = user.getBalance();
+            exp += 8;
+            balance += task.getReward();
+            updateWrapper.eq("id",taskId).set("state","complete").set("exp",exp).set("balance",balance);
+            int row = taskMapper.update(null,updateWrapper);
+            if(row > 0)
+            {
+                return Result.success("已确认任务完成");
+            }
+            return Result.error("403","确认失败");
         }
+        return Result.error("401","无权限");
+    }
+    @PostMapping("/{task_id}/refuse")
+    public Result refuse(HttpServletRequest request,@PathVariable("task_id") int taskId,@RequestBody Task t)
+    {
+        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
+        Task task = taskService.getById(taskId);
+        if(uid == task.getPublisherId())
+        {
+            if(task.getState() != "unconfirmed")
+            {
+                return Result.error("402","任务状态异常");
+            }
+            UpdateWrapper<Task> updateWrapper= new UpdateWrapper<>();
+            updateWrapper.eq("id",taskId).set("state","incomplete").set("dueTime",t.getDueTime());
+            int row = taskMapper.update(null,updateWrapper);
+            if(row > 0)
+            {
+                return Result.success("已拒绝任务完成申请，任务将继续");
+            }
+            return Result.error("403","拒绝失败");
+        }
+        return Result.error("401","无权限");
     }
     @PostMapping("/{task_id}/comment/isLike")
     public Result commentIsLike(HttpServletRequest request, @PathVariable("task_id") int taskId,@RequestBody Comment c )

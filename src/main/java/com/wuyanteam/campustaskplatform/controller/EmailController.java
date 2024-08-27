@@ -16,7 +16,7 @@ public class EmailController {
     @Resource
     private MailServiceImpl mailService;
 
-    @GetMapping(value = "sendEmail/{email}")
+    @GetMapping(value = "/sendEmail/{email}")
     public Result<Object> sendCode(@PathVariable String email) {
         try {
             mailService.mail(email);
