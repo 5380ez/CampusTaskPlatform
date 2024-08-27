@@ -54,7 +54,7 @@ public class TaskController {
                 new MPJQueryWrapper<Task>().select("u1.username as publisherUsername", "u1.sex as publisherSex",
                                 "u1.phone as publisherPhone ", "u1.level as publisherLevel", "u2.username as takerUsername",
                                 "u2.sex as takerSex", "u2.level as takerLevel", "u2.phone as takerPhone", "t.publisher_id",
-                                "t.taker_id", "t.publish_time", "t.state", "t.take_time", "t.reward", "t.campus","u1.avatarPath",
+                                "t.taker_id", "t.publish_time", "t.state", "t.take_time", "t.reward", "t.campus","u1.avatar_path",
                                 "t.start_address", "t.end_address", "t.due_time", "t.title", "t.description")
                         .innerJoin("`user` u1 on t.publisher_id = u1.id")
                         .leftJoin("`user` u2 on t.taker_id = u2.id")
@@ -91,7 +91,7 @@ public class TaskController {
         pagedComments = commentMapper.selectJoinPage(new Page<>(currentPage, 5),
                 CT.class,
                 new MPJQueryWrapper<Comment>()
-                        .select("t.id","u.avatarPath","t.content", "t.publish_time", "t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id")
+                        .select("t.id","u.avatar_path","t.content", "t.publish_time", "t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id")
                         .innerJoin("`task` t1 on t.task_id = t1.id")
                         .innerJoin("`user` u on t.commentator_id = u.id")
                         .innerJoin("`user` u1 on t.receiver_id = u1.id")
