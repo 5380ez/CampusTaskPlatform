@@ -26,6 +26,6 @@ public class Task
     private String description;
     private Timestamp finishTime;
     private String campus;
-    private byte[] photo;
+    private String photoPath;
     private Boolean isLike;
 }

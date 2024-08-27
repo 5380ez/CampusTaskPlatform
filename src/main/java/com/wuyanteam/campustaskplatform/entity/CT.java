@@ -18,5 +18,5 @@ public class CT {
     String publisherUsername;
     String receiverUsername;
     Timestamp ancestorPublishTime;
-    String avatar_path;
+    String avatarPath;
 }

@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 public class UTT
 {
     private int uid;
-    private byte[] avatar;
+    private String avatarPath;
     private String username;
     private String publisherUsername;
     private String takerUsername;

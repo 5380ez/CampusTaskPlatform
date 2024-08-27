@@ -57,7 +57,7 @@ private TaskDao taskDao;
             e.printStackTrace();
             throw new RuntimeException("Failed to read file", e);
         }
-        photowall.setPhoto(bytes);
+        //photowall.setPhoto(bytes);
         return photoWallDao.save(photowall);
     }
 
@@ -81,7 +81,7 @@ private TaskDao taskDao;
             e.printStackTrace();
             throw new RuntimeException("Failed to read file", e);
         }
-        task.setPhoto(bytes);
+        //task.setPhoto(bytes);
         taskDao.save(task);
 
     }

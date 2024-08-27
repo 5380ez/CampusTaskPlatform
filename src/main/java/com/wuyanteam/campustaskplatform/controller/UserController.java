@@ -87,7 +87,7 @@ public class UserController {
         QueryWrapper<User> queryWrapper = new QueryWrapper();
         queryWrapper.eq("id",id)
                 .select("id","username","sex","age","stu_id","exp","level","like_count",
-                        "publish_num","qq","email","phone","signature","avatar");
+                        "publish_num","qq","email","phone","signature","avatarPath");
         return userMapper.selectList(queryWrapper);
     }
     @GetMapping("/user/{id}/photowall")

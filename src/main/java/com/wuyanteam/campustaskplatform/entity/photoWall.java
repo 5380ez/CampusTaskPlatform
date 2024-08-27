@@ -14,5 +14,5 @@ public class photoWall {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int userId;
-    private byte[] photo;
+    private String photoPath;
 }
