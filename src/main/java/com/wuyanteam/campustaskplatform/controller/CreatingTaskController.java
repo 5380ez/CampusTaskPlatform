@@ -1,6 +1,8 @@
 package com.wuyanteam.campustaskplatform.controller;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.wuyanteam.campustaskplatform.entity.Task;
+import com.wuyanteam.campustaskplatform.entity.User;
 import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
 import com.wuyanteam.campustaskplatform.mapper.UserMapper;
 import com.wuyanteam.campustaskplatform.service.UserService;
@@ -26,13 +28,15 @@ public class CreatingTaskController {
     public String createTask(HttpServletRequest request, @RequestBody Task task) {
         String token = request.getHeader("Authorization");
         // 验证 reward 是否在有效范围内
+        int uid = userService.InfoService(token).getId();
+        User user = userService.getById(uid);
+        float balance = user.getBalance();
         if (task.getReward() <= 0) {
             return "Failed to create task: Reward too small.";
         }
-        if (task.getReward() > 10000) {
+        if (task.getReward() > balance) {
             return "Failed to create task: Reward too large.";
         }
-
         // 验证 title, startAddress, endAddress, dueTime 是否为空
         if (task.getTitle() == null || task.getTitle().isEmpty()) {
             return "Failed to create task: Title cannot be empty.";
@@ -58,11 +62,14 @@ public class CreatingTaskController {
         newTask.setState("un-taken");
         newTask.setTakerId(null);
         if (newTask.getDueTime().compareTo(publishTime) < 0) {
-            return "Failed to create task: Due time (" + newTask.getDueTime() + ") cannot be earlier than publishTime (" + publishTime + ").";
+            return "Failed to create task: Due time cannot be earlier than publishTime.";
         }
         int rows = taskMapper.insert(newTask);
-
         if (rows > 0) {
+            balance -= task.getReward();
+            UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.set("balance",balance);
+            userMapper.update(null,updateWrapper);
             return "Task created successfully.";
         } else {
             return "Failed to create task.";
