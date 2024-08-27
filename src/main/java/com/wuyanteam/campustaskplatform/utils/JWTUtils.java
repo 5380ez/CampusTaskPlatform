@@ -9,12 +9,13 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 
 public class JWTUtils {
-    //7天过期
-    private static long expire=604800;
-    //32位密钥
-    private static String secret="hgifdsijvrghpfdefqzjygcinfrtvguj";
+    @Value("${JwT.expire}")
+    private static long expire;
+    @Value("${JwT.secret}")
+    private static String secret;
 
     //生成token
     public static String generateToken(String uname){

@@ -24,3 +24,8 @@ spring:
 uploadFile:
     maxSize: 10
     path: D:/20653/Documents/beifen5/CampusTaskPlatform/target/classes/static/upload/
+
+JwT:
+  #1天过期
+  expire: 86400
+  secret: hgifdsijvrghpfdefqzjygcinfrtvguj

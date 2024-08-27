@@ -2,7 +2,6 @@ package com.wuyanteam.campustaskplatform.service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuyanteam.campustaskplatform.Reposity.photoWallDao;
 import com.wuyanteam.campustaskplatform.entity.photoWall;
 import com.wuyanteam.campustaskplatform.service.PhotoWallService;

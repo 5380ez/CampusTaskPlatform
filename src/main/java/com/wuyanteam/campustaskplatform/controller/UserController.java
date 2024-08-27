@@ -34,18 +34,31 @@ public class UserController {
     private UploadFileService uploadFile;
     @Resource
     PhotoWallService photoWallService;
-    /*@PostMapping("/user/setting/changeAvatar")
-    public Result<User> upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    @Resource
+    private UploadFileService uploadFileTool;
+
+    @GetMapping("/user")
+    public Result<User> myInfo(HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        if(userService.InfoService(token)==null){
+            return Result.error("123","token已失效");
+        }
+        return Result.success(userService.InfoService(token));
+    }
+
+    @GetMapping("/user/photowall")
+    public Result<List> myphotowall(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        return photoWallService.findPhotoWall(userService.InfoService(token).getId());
+    }
+
+    @PostMapping("/changeAvatar")
+    public Result<User> uploadavatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         if(file.isEmpty()){
             return Result.error("上传失败，文件为空");
         }
-        String token = request.getHeader("Authorization");
-        User user=uploadFile.updateAvatar(token,file);
-        if(user==null){
-            return Result.error("头像更新失败");
-        }
-        return Result.success(user);
-    }*/
+        return Result.success(uploadFileTool.uploadAvatar(request.getHeader("Authorization"),file));
+    }
 
     @PostMapping("/user/setting/updatePhotoWall")
     public Result<photoWall> uploadPhotoWall(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
@@ -59,33 +72,6 @@ public class UserController {
         }
         return Result.success(photowall);
     }
-    @Resource
-    private UploadFileService uploadFileTool;
-    @PostMapping("/changeAvatar")
-    public Result<User> uploadavatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-        return Result.success(uploadFileTool.uploadAvatar(request.getHeader("Authorization"),file));
-    }
-
-    @DeleteMapping("/user/setting/deletePhotoWall/{id}")
-    public Result deletePhotoWall(@PathVariable int id) {
-        if(uploadFile.deletePhotoWall(id)==1){
-        return Result.success("移除成功");}
-        return Result.error("该图片已被移除");
-    }
-
-    @GetMapping("/user")
-    public Result<User> myInfo(HttpServletRequest request){
-        String token = request.getHeader("Authorization");
-        if(userService.InfoService(token)==null){
-            return Result.error("123","token已失效");
-        }
-        return Result.success(userService.InfoService(token));
-    }
-    @GetMapping("/user/photowall")
-    public Result<List> myphotowall(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        return photoWallService.findPhotoWall(userService.InfoService(token).getId());
-    }
 
     @GetMapping("/user/{id}")
     public List searchByName(@PathVariable int id)
@@ -96,6 +82,7 @@ public class UserController {
                         "publish_num","qq","email","phone","signature","avatar_path");
         return userMapper.selectList(queryWrapper);
     }
+
     @GetMapping("/user/{id}/photowall")
     public Result<List> findphotowall(@PathVariable int id) {
         return photoWallService.findPhotoWall(id);
@@ -111,7 +98,6 @@ public class UserController {
         updateWrapper.eq("id", userService.InfoService(token).getId());
 
         // 检查参数是否为空，如果不为空则进行更新
-
         if (user.getAge() != null) {
             updateWrapper.set("age", user.getAge());
         }
@@ -134,6 +120,13 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("更新失败");
         }
+    }
+
+    @DeleteMapping("/user/setting/deletePhotoWall/{id}")
+    public Result deletePhotoWall(@PathVariable int id) {
+        if(uploadFile.deletePhotoWall(id)==1){
+        return Result.success("移除成功");}
+        return Result.error("该图片已被移除");
     }
 
     @PostMapping("/login")
