@@ -171,7 +171,6 @@ public class TaskController {
         }
     }
     //任务点赞功能
-    //任务点赞功能
     @PostMapping("/{task_id}/like")
     public Result isLikeUpdate(HttpServletRequest request,@PathVariable("task_id")int taskId)
     {
@@ -252,9 +251,15 @@ public class TaskController {
     public Result deleteTask(HttpServletRequest request, @PathVariable("task_id")int taskId)
     {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
+        //根据taskId获得任务
         Task task1 = taskService.getById(taskId);
+        //Task task = taskMapper.selectById(taskId);
+        //获得takerId,再根据takerId增加taker的点赞数
         Integer publisherId = task1.getPublisherId();
         Integer takerId = task1.getTakerId();
+        System.out.println(publisherId);
+        System.out.println(uid);
+        System.out.println(takerId);
         if(publisherId==uid){
             QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("id", taskId);
@@ -267,6 +272,7 @@ public class TaskController {
                     User user = userMapper.selectById(publisherId);
                     int flag=1;
                     int exp=user.getExp();
+                    System.out.println(exp);
                     exp -=5;
                     User updateEntity = new User();
                     if(exp<0){
@@ -274,6 +280,7 @@ public class TaskController {
                         updateEntity.setExp(exp);
                         flag=0;
                     }
+                    System.out.println(exp+"  falg");
                     if(flag==1) {
                         updateEntity.setExp(exp);
                     }
@@ -281,7 +288,8 @@ public class TaskController {
                     whereWrapper.eq("id", publisherId);
                     boolean result2 = userService.update(updateEntity, whereWrapper);
                     if (result2) {
-                        HashMap<Integer,Integer>map = new HashMap<>();
+                        System.out.println("Record updated successfully.");
+                        HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
                         map.put(publisherId,exp);
                         if(flag==0){
                             return  Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
@@ -289,11 +297,17 @@ public class TaskController {
                         if(flag==1){
                             return Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验");
                         }
+                    } else {
+                        System.out.println("Failed to update record.");
                     }
                 }
+                System.out.println("Record deleted successfully.");
                 return Result.success("你发布的任务已删除");
+            } else {
+                System.out.println("Failed to delete record.");
+                return Result.error("406","删除失败");
             }
-            return Result.error("406","删除失败");
+
         }
         if (takerId == uid) {
             User user = userMapper.selectById(takerId);
@@ -311,9 +325,11 @@ public class TaskController {
             UpdateWrapper<Task> updateWrapper = new UpdateWrapper<>();
             updateWrapper.eq("id", taskId)
                     .set("state", "un-taken")
+                    .set("take_time",null)
                     .set("taker_id", null);
 
             boolean result = taskService.update(updateWrapper);
+
             if (result) {
                 // 更新用户经验值
                 userMapper.updateById(updateEntity); // 不论flag为何值都更新数据库中的用户信息
@@ -325,9 +341,13 @@ public class TaskController {
                 } else {
                     message = "你接受的任务已取消，经验值减5";
                 }
+
+                System.out.println("Record updated successfully.");
                 return Result.success(map,message);
+            } else {
+                System.out.println("Failed to update record.");
+                return Result.error("更新失败", "未能成功取消任务");
             }
-            return Result.error("更新失败", "未能成功取消任务");
         }
         return Result.error("403","未检测到操作");
     }
