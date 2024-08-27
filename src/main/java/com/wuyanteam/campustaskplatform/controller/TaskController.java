@@ -362,20 +362,22 @@ public class TaskController {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         Task task = taskService.getById(taskId);
         User user = userService.getById(uid);
+        int takerId = task.getTakerId();
         if(uid == task.getPublisherId())
         {
-            if(task.getState() != "unconfirmed")
+            if(!Objects.equals(task.getState(), "unconfirmed"))
             {
                 return Result.error("402","任务状态异常");
             }
-            UpdateWrapper<Task> updateWrapper= new UpdateWrapper<>();
-            updateWrapper.eq("id",taskId).set("state","complete");
+            UpdateWrapper<Task> taskUpdateWrapper= new UpdateWrapper<>();
+            taskUpdateWrapper.eq("id",taskId).set("state","complete");
+            UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
             int exp = user.getExp();
             float balance = user.getBalance();
             exp += 8;
             balance += task.getReward();
-            updateWrapper.eq("id",taskId).set("state","complete").set("exp",exp).set("balance",balance);
-            int row = taskMapper.update(null,updateWrapper);
+            userUpdateWrapper.eq("id",takerId).set("exp",exp).set("balance",balance);
+            int row = taskMapper.update(null,taskUpdateWrapper);
             if(row > 0)
             {
                 return Result.success("已确认任务完成");
@@ -391,7 +393,7 @@ public class TaskController {
         Task task = taskService.getById(taskId);
         if(uid == task.getPublisherId())
         {
-            if(task.getState() != "unconfirmed")
+            if(!Objects.equals(task.getState(), "unconfirmed"))
             {
                 return Result.error("402","任务状态异常");
             }
