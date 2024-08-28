@@ -13,9 +13,9 @@ public class JdbcUtil {
 
     static {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/campustaskplatform?useUnicode=true&characterEncoding=utf8");
-        config.setUsername("root");
-        config.setPassword("root");
+        config.setJdbcUrl("jdbc:mysql://101.126.90.250:3306/campustaskplatform?useUnicode=true&characterEncoding=utf8");
+        config.setUsername("WJZ");
+        config.setPassword("123456");
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
