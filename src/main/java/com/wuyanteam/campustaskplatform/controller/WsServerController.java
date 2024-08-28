@@ -79,6 +79,7 @@ public class WsServerController {
             {
                 String message;
                 Task task = taskService.getById(ntt.getTaskId());
+                System.out.println("task:"+task);
                 User user = userService.getById(task.getTakerId());
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String notifyTime = ntt.getNotifyTime().format(formatter);
@@ -87,6 +88,7 @@ public class WsServerController {
                         message = task.getPublisherId()+"|"+notifyTime+"您的订单已被用户："+user.getUsername()+"接单";
                         break;
                     case "complete":
+                        System.out.println("task:"+task);
                         message = task.getTakerId()+"|"+notifyTime+"您的id为："+task.getId()+"的订单已确认完成，订单金额为："+task.getReward();
                         break;
                     case "un-taken":

@@ -108,8 +108,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 return user;
             }
         }
-        //throw new IllegalArgumentException("token已过期");
-        return userDao.findByUsername(JWTUtils.getClaimsByToken(token).getSubject());
+        throw new IllegalArgumentException("token已过期");
+        //return userDao.findByUsername(JWTUtils.getClaimsByToken(token).getSubject());
     }
 
     @Override

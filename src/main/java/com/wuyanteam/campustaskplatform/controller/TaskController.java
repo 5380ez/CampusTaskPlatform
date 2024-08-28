@@ -554,7 +554,7 @@ public class TaskController {
             {
                 //新增notification记录——》向接单者发送确认消息
                 Notification notification = new Notification();
-                notification.setType("complete");
+                notification.setType("task");
                 LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
                 Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
                 notification.setMessagePublishTime(specificTimeStamp);
