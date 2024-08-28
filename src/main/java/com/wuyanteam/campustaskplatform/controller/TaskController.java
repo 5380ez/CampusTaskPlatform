@@ -484,7 +484,7 @@ public class TaskController {
     @PostMapping("/{task_id}/requestConfirm")
     public Result requestConfirm(HttpServletRequest request, @PathVariable("task_id") int taskId)
     {
-        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
+        Integer uid = userService.InfoService(request.getHeader("Authorization")).getId();
         //根据taskId获得任务
         Task task = taskService.getById(taskId);
         if(uid == task.getTakerId() )
