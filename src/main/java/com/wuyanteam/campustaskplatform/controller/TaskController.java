@@ -109,7 +109,7 @@ public class TaskController {
         pagedComments = commentMapper.selectJoinPage(new Page<>(currentPage, 5),
                 CT.class,
                 new MPJQueryWrapper<Comment>()
-                        .select("t.id","u.avatar_path","t.content", "t.publish_time", "t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id","c1.is_like as isLike")
+                        .select("t.id","u.avatar_path","t.content", "t.publish_time", "t.commentator_id as publisherId","t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id","c1.is_like as isLike")
                         .innerJoin("`task` as t1 on t.task_id = t1.id")
                         .innerJoin("`user` as u on t.commentator_id = u.id")
                         .innerJoin("`user` as u1 on t.receiver_id = u1.id")
