@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
+import com.mysql.cj.QueryResult;
 import com.wuyanteam.campustaskplatform.config.WsServer;
 import com.wuyanteam.campustaskplatform.entity.*;
 import com.wuyanteam.campustaskplatform.mapper.*;
@@ -587,7 +588,7 @@ public class TaskController {
         return Result.error("401","无权限");
     }
     @PostMapping("/{task_id}/comment/like")
-    public Result commentIsLike(HttpServletRequest request, @RequestBody Comment c) {
+    public Result commentLike(HttpServletRequest request, @RequestBody Comment c) {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         int commentId = c.getId();
         //flag用于最后判断是点赞还是取消点赞，1为点赞，0为取消
