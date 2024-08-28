@@ -59,6 +59,7 @@ public class WsServerController {
             if(ntt.getType().equals("comment") )
             {
                 Comment comment = commentMapper.selectById(ntt.getCommentId());
+                System.out.println("comment:"+comment);
                 User user = userService.getById(comment.getCommentatorId());
                 int myId = userService.InfoService(request.getHeader("Authorization")).getId();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

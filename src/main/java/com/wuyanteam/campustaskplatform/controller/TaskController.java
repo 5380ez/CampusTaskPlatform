@@ -66,6 +66,7 @@ public class TaskController {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         UpdateWrapper<Task> updateWrapper = new UpdateWrapper<>();
         Task task = taskService.getById(taskId);
+        Task task1 = task;
         updateWrapper.eq("id", taskId);
         if (task.getPublisherId() == uid) {
             return Result.error("401","不能接受自己发布的任务！");
@@ -90,13 +91,14 @@ public class TaskController {
             notification.setTaskId(taskId);
             Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
             notification.setNotifyTime(publishTime);
-            notification.setReceiverId(task.getPublisherId());
+            notification.setReceiverId(task1.getPublisherId());
             notificationMapper.insert(notification);
 
             //notification实时通知
             WsServer wsServer = new WsServer();
-            User user = userService.getById(task.getTakerId());
-            wsServer.sendMessageToSomeone(task.getPublisherId()+"|您的订单已被用户："+user.getUsername()+"接单");
+            //System.out.println("takerId:"+task.getTakerId());
+            User user = userService.getById(task1.getTakerId());
+            wsServer.sendMessageToSomeone(task1.getPublisherId()+"|您的订单已被用户："+user.getUsername()+"接单");
 
 
             return Result.success(task, "成功接单！");
@@ -150,7 +152,7 @@ public class TaskController {
             //添加至notification表
             Notification notification = new Notification();
             notification.setRead(false);
-            notification.setCommentPublishTime(publishTime);
+            notification.setCommentPublishTime(comment.getPublishTime());
             notification.setReceiverId(task.getPublisherId());
             LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
             Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
@@ -195,7 +197,7 @@ public class TaskController {
             //添加至notification表
             Notification notification = new Notification();
             notification.setRead(false);
-            notification.setCommentPublishTime(publishTime);
+            notification.setCommentPublishTime(comment.getPublishTime());
             notification.setReceiverId(comment1.getCommentatorId());
             LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
             Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
@@ -319,6 +321,7 @@ public class TaskController {
         Integer uid = userService.InfoService(request.getHeader("Authorization")).getId();
         //根据taskId获得任务
         Task task1 = taskService.getById(taskId);
+        Task task2 = task1;
         //Task task = taskMapper.selectById(taskId);
         //获得takerId,再根据takerId增加taker的点赞数
         Integer publisherId = task1.getPublisherId();
@@ -366,14 +369,13 @@ public class TaskController {
                             LocalDateTime now = LocalDateTime.now();
                             Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                             notification.setNotifyTime(publishTime);
-                            notificationMapper.insert(notification);
-                            notification.setReceiverId(task1.getTakerId());
+                            notification.setReceiverId(task2.getTakerId());
                             notificationMapper.insert(notification);
                             //notification实时通知
                             WsServer wsServer = new WsServer();
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                             String currentTime = now.format(formatter);
-                            wsServer.sendMessageToSomeone(task1.getTakerId()+"|"+currentTime+"您的id为："+taskId+"的任务已被取消，请联系发布者协商");
+                            wsServer.sendMessageToSomeone(task2.getTakerId()+"|"+currentTime+"您的id为："+taskId+"的任务已被取消，请联系发布者协商");
                             return  Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
                         }
                         if(flag==1){
@@ -390,15 +392,14 @@ public class TaskController {
                             LocalDateTime now = LocalDateTime.now();
                             Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                             notification.setNotifyTime(publishTime);
-                            notificationMapper.insert(notification);
-                            notification.setReceiverId(task1.getTakerId());
+                            notification.setReceiverId(task2.getTakerId());
                             notificationMapper.insert(notification);
 
                             //notification实时通知
                             WsServer wsServer = new WsServer();
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                             String currentTime = now.format(formatter);
-                            wsServer.sendMessageToSomeone(task1.getTakerId()+"|"+currentTime+"您的id为："+taskId+"的任务已被取消，请联系发布者协商");
+                            wsServer.sendMessageToSomeone(task2.getTakerId()+"|"+currentTime+"您的id为："+taskId+"的任务已被取消，请联系发布者协商");
                             return Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验");
                         }
                     } else {
@@ -449,15 +450,14 @@ public class TaskController {
                 LocalDateTime now = LocalDateTime.now();
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
-                notificationMapper.insert(notification);
-                notification.setReceiverId(task1.getPublisherId());
+                notification.setReceiverId(task2.getPublisherId());
                 notificationMapper.insert(notification);
 
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String currentTime = now.format(formatter);
-                wsServer.sendMessageToSomeone(task1.getPublisherId()+"|"+currentTime+"您的订单状态变更为：未接单");
+                wsServer.sendMessageToSomeone(task2.getPublisherId()+"|"+currentTime+"您的订单状态变更为：未接单");
                 if (flag == 0) {
                     message = "你接受的任务已取消，经验值减5，且当前经验值已经为0";
                 } else {
@@ -476,6 +476,7 @@ public class TaskController {
         Integer uid = userService.InfoService(request.getHeader("Authorization")).getId();
         //根据taskId获得任务
         Task task = taskService.getById(taskId);
+        Task task1 = task;
         if(uid == task.getTakerId() )
         {
             LocalDateTime now = LocalDateTime.now();
@@ -500,15 +501,14 @@ public class TaskController {
                 notification.setTaskId(taskId);
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
-                notificationMapper.insert(notification);
-                notification.setReceiverId(task.getPublisherId());
+                notification.setReceiverId(task1.getPublisherId());
                 notificationMapper.insert(notification);
 
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String currentTime = now.format(formatter);
-                wsServer.sendMessageToSomeone(task.getPublisherId()+"|"+currentTime+"您id为"+task.getId()+"订单已送达，等待确认，订单金额为："+task.getReward());
+                wsServer.sendMessageToSomeone(task1.getPublisherId()+"|"+currentTime+"您id为"+task.getId()+"订单已送达，等待确认，订单金额为："+task.getReward());
                 return Result.success("已提交完成申请");
             }
             return Result.error("403","提交失败");
@@ -520,6 +520,7 @@ public class TaskController {
     {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         Task task = taskService.getById(taskId);
+        Task task1 = task;
         User user = userService.getById(uid);
         int takerId = task.getTakerId();
         User taker = userService.getById(takerId);
@@ -563,15 +564,15 @@ public class TaskController {
                 LocalDateTime now = LocalDateTime.now();
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
-                notificationMapper.insert(notification);
-                notification.setReceiverId(task.getTakerId());
+                System.out.println("receiver:"+task1.getTakerId());
+                notification.setReceiverId(task1.getTakerId());
                 notificationMapper.insert(notification);
 
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String currentTime = now.format(formatter);
-                wsServer.sendMessageToSomeone(task.getTakerId()+"|"+currentTime+"您的id为："+task.getId()+"的订单已确认完成，订单金额为："+task.getReward());
+                wsServer.sendMessageToSomeone(task1.getTakerId()+"|"+currentTime+"您的id为："+task.getId()+"的订单已确认完成，订单金额为："+task.getReward());
                 return Result.success("已确认任务完成");
             }
             return Result.error("403","确认失败");
@@ -606,7 +607,6 @@ public class TaskController {
                 LocalDateTime now = LocalDateTime.now();
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
-                notificationMapper.insert(notification);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String currentTime = now.format(formatter);
                 notification.setReceiverId(task.getTakerId());

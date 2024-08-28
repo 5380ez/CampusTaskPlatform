@@ -10,6 +10,7 @@ import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin //允许该控制器跨域
@@ -19,7 +20,7 @@ public class AvailableTaskController {
     @Resource
     private TaskMapper taskMapper;
     @PostMapping()
-    public IPage availableTask(@RequestBody TaskDTO taskDTO) {
+    public IPage availableTask(HttpServletRequest request, @RequestBody TaskDTO taskDTO) {
         System.out.println(taskDTO);
         return getTasks(taskDTO.getCampus(), taskDTO.getSex(), taskDTO.getPage(), taskDTO.getSortOrder(), taskDTO.getIsDesc(), null);
     }

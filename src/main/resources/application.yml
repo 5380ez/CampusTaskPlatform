@@ -23,5 +23,5 @@ spring:
 
 uploadFile:
     maxSize: 10
-    path: C:/Users/wh/Documents/GitHub/CampusTaskPlatform/target/classes/static/upload/
+    path: C:/Users/23756/IdeaProjects/CampusTaskPlatform/target/classes/static/upload/
 
