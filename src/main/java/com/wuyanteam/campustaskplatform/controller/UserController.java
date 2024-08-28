@@ -95,21 +95,11 @@ public class UserController {
         updateWrapper.eq("id", userService.InfoService(token).getId());
 
         // 检查参数是否为空，如果不为空则进行更新
-        if (user.getAge() != null) {
             updateWrapper.set("age", user.getAge());
-        }
-        if (user.getAddress() != null) {
             updateWrapper.set("address", user.getAddress());
-        }
-        if (user.getQq() != null) {
             updateWrapper.set("qq", user.getQq());
-        }
-        if (user.getPhone() != null) {
             updateWrapper.set("phone", user.getPhone());
-        }
-        if (user.getSignature() != null) {
             updateWrapper.set("signature", user.getSignature());
-        }
         // 执行更新操作
         int row = userMapper.update(null, updateWrapper);
         if (row > 0) {
