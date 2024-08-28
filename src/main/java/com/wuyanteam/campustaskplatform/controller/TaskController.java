@@ -101,19 +101,24 @@ public class TaskController {
     }
     //查看评论
     @GetMapping("/{task_id}/comment/{page}")
-    public Map<String, Object> commentInformation(@PathVariable("task_id") int taskId, @PathVariable(value = "page") int currentPage)
+    public Map<String, Object> commentInformation(HttpServletRequest request,@PathVariable("task_id") int taskId, @PathVariable(value = "page") int currentPage)
     {
+        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         IPage<CT> pagedComments;
         pagedComments = commentMapper.selectJoinPage(new Page<>(currentPage, 5),
                 CT.class,
                 new MPJQueryWrapper<Comment>()
-                        .select("t.id","u.avatar_path","t.content", "t.publish_time", "t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id")
-                        .innerJoin("`task` t1 on t.task_id = t1.id")
-                        .innerJoin("`user` u on t.commentator_id = u.id")
-                        .innerJoin("`user` u1 on t.receiver_id = u1.id")
+                        .select("t.id","u.avatar_path","t.content", "t.publish_time", "t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id","c1.is_like as isLike")
+                        .innerJoin("`task` as t1 on t.task_id = t1.id")
+                        .innerJoin("`user` as u on t.commentator_id = u.id")
+                        .innerJoin("`user` as u1 on t.receiver_id = u1.id")
+                        .leftJoin("`comment_like` as c1 on t.id = c1.comment_id AND c1.user_id = "+uid)
                         .eq("t1.id", taskId)
                         .orderByAsc("t.ancestor_publish_time")
                         .orderByAsc("t.publish_time"));
+
+
+
 
         Map<String, Object> result = new HashMap<>();
         result.put("comments", pagedComments.getRecords());
@@ -376,6 +381,26 @@ public class TaskController {
                             return  Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
                         }
                         if(flag==1){
+
+                            //新增notification记录——》向接单者发送取消消息
+                            Notification notification = new Notification();
+                            notification.setType("cancel");
+                            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+                            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+                            notification.setMessagePublishTime(specificTimeStamp);
+                            notification.setMessagePublishTime(specificTimeStamp);
+                            notification.setRead(false);
+                            notification.setTaskId(taskId);
+                            LocalDateTime now = LocalDateTime.now();
+                            Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+                            notification.setNotify_time(publishTime);
+                            notificationMapper.insert(notification);
+
+                            //notification实时通知
+                            WsServer wsServer = new WsServer();
+                            wsServer.sendMessageToSomeone(task1.getTakerId()+"|您的id为："+taskId+"的任务已被取消，请联系发布者协商");
+
+
                             return Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验");
                         }
                     } else {
@@ -409,25 +434,6 @@ public class TaskController {
                     .set("take_time",null)
                     .set("taker_id", null);
 
-            //新增notification记录——》向发布者发送状态变更消息
-            Notification notification = new Notification();
-            notification.setType("task");
-            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
-            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
-            notification.setMessagePublishTime(specificTimeStamp);
-            notification.setMessagePublishTime(specificTimeStamp);
-            notification.setRead(false);
-            notification.setTaskId(taskId);
-            LocalDateTime now = LocalDateTime.now();
-            Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
-            notification.setNotify_time(publishTime);
-            notificationMapper.insert(notification);
-
-            //notification实时通知
-            WsServer wsServer = new WsServer();
-            wsServer.sendMessageToSomeone(task1.getPublisherId()+"|您的订单状态变更为：未接单");
-
-
             boolean result = taskService.update(updateWrapper);
 
             if (result) {
@@ -436,6 +442,26 @@ public class TaskController {
                 HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
                 map.put(takerId,exp);
                 String message;
+
+
+                //新增notification记录——》向发布者发送状态变更消息
+                Notification notification = new Notification();
+                notification.setType("task");
+                LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+                Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setRead(false);
+                notification.setTaskId(taskId);
+                LocalDateTime now = LocalDateTime.now();
+                Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+                notification.setNotify_time(publishTime);
+                notificationMapper.insert(notification);
+
+                //notification实时通知
+                WsServer wsServer = new WsServer();
+                wsServer.sendMessageToSomeone(task1.getPublisherId()+"|您的订单状态变更为：未接单");
+
                 if (flag == 0) {
                     message = "你接受的任务已取消，经验值减5，且当前经验值已经为0";
                 } else {
