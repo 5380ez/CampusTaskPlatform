@@ -48,9 +48,10 @@ public class NotificationController
                         .lt(Notification::getNotifyTime,currentTime);
 
         List<Notification> list = notificationMapper.selectList(queryWrapper);
-        System.out.println(list);
+        System.out.println("list: "+list);
 
         for (Notification notification : list) {
+            System.out.println("notification:"+notification);
             int notificationId = notification.getNotificationId();
             notificationDao.deleteNotificationById(notificationId);
         }

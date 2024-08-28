@@ -35,7 +35,7 @@
     var inputEl=document.getElementsByTagName("input")[0];
     var websocket=null;
     if('WebSocket' in window){
-        websocket=new WebSocket("ws:localhost:8080/websocket/9");
+        websocket=new WebSocket("ws:localhost:8088/websocket/9");
     }else {
         alert("浏览器不支持");
 

@@ -85,11 +85,13 @@ public class TaskController {
             LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
             Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
             notification.setMessagePublishTime(specificTimeStamp);
-            notification.setMessagePublishTime(specificTimeStamp);
+            notification.setCommentPublishTime(specificTimeStamp);
             notification.setRead(false);
             notification.setTaskId(taskId);
             Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
             notification.setNotifyTime(publishTime);
+            notification.setReceiverId(task.getPublisherId());
+            notificationMapper.insert(notification);
 
             //notification实时通知
             WsServer wsServer = new WsServer();
@@ -358,12 +360,14 @@ public class TaskController {
                             LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
                             Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
                             notification.setMessagePublishTime(specificTimeStamp);
-                            notification.setMessagePublishTime(specificTimeStamp);
+                            notification.setCommentPublishTime(specificTimeStamp);
                             notification.setRead(false);
                             notification.setTaskId(taskId);
                             LocalDateTime now = LocalDateTime.now();
                             Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                             notification.setNotifyTime(publishTime);
+                            notificationMapper.insert(notification);
+                            notification.setReceiverId(task1.getTakerId());
                             notificationMapper.insert(notification);
                             //notification实时通知
                             WsServer wsServer = new WsServer();
@@ -380,13 +384,16 @@ public class TaskController {
                             LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
                             Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
                             notification.setMessagePublishTime(specificTimeStamp);
-                            notification.setMessagePublishTime(specificTimeStamp);
+                            notification.setCommentPublishTime(specificTimeStamp);
                             notification.setRead(false);
                             notification.setTaskId(taskId);
                             LocalDateTime now = LocalDateTime.now();
                             Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                             notification.setNotifyTime(publishTime);
                             notificationMapper.insert(notification);
+                            notification.setReceiverId(task1.getTakerId());
+                            notificationMapper.insert(notification);
+
                             //notification实时通知
                             WsServer wsServer = new WsServer();
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -436,13 +443,16 @@ public class TaskController {
                 LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
                 Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
                 notification.setMessagePublishTime(specificTimeStamp);
-                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setCommentPublishTime(specificTimeStamp);
                 notification.setRead(false);
                 notification.setTaskId(taskId);
                 LocalDateTime now = LocalDateTime.now();
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
                 notificationMapper.insert(notification);
+                notification.setReceiverId(task1.getPublisherId());
+                notificationMapper.insert(notification);
+
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -485,12 +495,15 @@ public class TaskController {
                 LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
                 Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
                 notification.setMessagePublishTime(specificTimeStamp);
-                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setCommentPublishTime(specificTimeStamp);
                 notification.setRead(false);
                 notification.setTaskId(taskId);
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
                 notificationMapper.insert(notification);
+                notification.setReceiverId(task.getPublisherId());
+                notificationMapper.insert(notification);
+
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -544,13 +557,16 @@ public class TaskController {
                 LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
                 Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
                 notification.setMessagePublishTime(specificTimeStamp);
-                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setCommentPublishTime(specificTimeStamp);
                 notification.setRead(false);
                 notification.setTaskId(taskId);
                 LocalDateTime now = LocalDateTime.now();
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
                 notificationMapper.insert(notification);
+                notification.setReceiverId(task.getTakerId());
+                notificationMapper.insert(notification);
+
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -584,7 +600,7 @@ public class TaskController {
                 LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
                 Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
                 notification.setMessagePublishTime(specificTimeStamp);
-                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setCommentPublishTime(specificTimeStamp);
                 notification.setRead(false);
                 notification.setTaskId(taskId);
                 LocalDateTime now = LocalDateTime.now();
@@ -593,6 +609,9 @@ public class TaskController {
                 notificationMapper.insert(notification);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String currentTime = now.format(formatter);
+                notification.setReceiverId(task.getTakerId());
+                notificationMapper.insert(notification);
+
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 wsServer.sendMessageToSomeone(task.getTakerId()+"|"+currentTime+"您的id为："+task.getId()+"的订单被拒绝确认，请继续配送");
