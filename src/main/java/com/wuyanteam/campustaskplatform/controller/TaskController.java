@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -116,10 +117,6 @@ public class TaskController {
                         .eq("t1.id", taskId)
                         .orderByAsc("t.ancestor_publish_time")
                         .orderByAsc("t.publish_time"));
-
-
-
-
         Map<String, Object> result = new HashMap<>();
         result.put("comments", pagedComments.getRecords());
         result.put("totalPages", pagedComments.getPages());
@@ -617,6 +614,7 @@ public class TaskController {
     public Result commentLike(HttpServletRequest request, @RequestBody Comment c) {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         int commentId = c.getId();
+
         //flag用于最后判断是点赞还是取消点赞，1为点赞，0为取消
         int flag=1;
         // 查询是否已有对应的点赞记录
@@ -647,6 +645,7 @@ public class TaskController {
         }
         // 根据commentId获取评论，并更新评论的点赞数,根据flag判断点赞或取消点赞,isLike用于返回给前端点赞或取消点赞操作
         Comment comment = commentMapper.selectById(commentId);
+        Timestamp publishTime = comment.getPublishTime();
         int like = comment.getLikeNum();
         Boolean isLike = true;
         if (flag==1) {
@@ -658,7 +657,7 @@ public class TaskController {
         }
         // 更新点赞数到Comment表中
         UpdateWrapper<Comment> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", commentId).set("like_num", like);
+        updateWrapper.eq("id", commentId).set("like_num", like).set("publish_time",publishTime);
         boolean result = commentService.update(updateWrapper);
         if (result) {
             // 点赞成功后，返回给前端true和点赞数，以及该评论对应的Id
