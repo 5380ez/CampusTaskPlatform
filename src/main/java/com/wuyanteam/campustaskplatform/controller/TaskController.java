@@ -607,9 +607,9 @@ public class TaskController {
         return Result.error("401","无权限");
     }
     @PostMapping("/{task_id}/comment/like")
-    public Result commentIsLike(HttpServletRequest request, @RequestParam int id) {
+    public Result commentIsLike(HttpServletRequest request, @RequestBody Comment c) {
         int uid = userService.InfoService(request.getHeader("Authorization")).getId();
-        int commentId = id;
+        int commentId = c.getId();
         //flag用于最后判断是点赞还是取消点赞，1为点赞，0为取消
         int flag=1;
         // 查询是否已有对应的点赞记录
@@ -622,7 +622,7 @@ public class TaskController {
             // 创建CommentLike对象
             CommentLike commentLike = new CommentLike();
             commentLike.setUserId(uid);
-            commentLike.setCommentId(id);
+            commentLike.setCommentId(commentId);
             commentLike.setIsLike(true); // 设置为true表示点赞
             commentLikeMapper.insert(commentLike);
         } else {
