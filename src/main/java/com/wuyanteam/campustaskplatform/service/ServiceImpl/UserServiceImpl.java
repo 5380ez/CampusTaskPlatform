@@ -75,6 +75,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    public Boolean getTimeDifference(Timestamp endTime, Timestamp startTime) {
+        SimpleDateFormat timeformat = new SimpleDateFormat("yyyy-MM-dd,HH:mm:ss");
+        long t1 = endTime.getTime();
+        long t2 = startTime.getTime();
+        int hours=Math.abs((int) ((t1 - t2)/(1000*60*60)));
+        int minutes=Math.abs((int) (((t1 - t2)/1000-hours*(60*60))/60));
+        int second=Math.abs((int) ((t1 - t2)/1000-hours*(60*60)-minutes*60));
+        System.out.println(second);
+        if(second<=5&&minutes==0&&hours==0){
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public User InfoService(String token) {
         if (JWTUtils.verifyToken(token)) {
@@ -89,7 +103,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             User user = userDao.findByUsername(username);
             Date IssuedAt = JWTUtils.getClaimsByToken(token).getIssuedAt();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            if (Timestamp.valueOf(simpleDateFormat.format(IssuedAt)).compareTo(user.getLastLoginTime()) == 0) {
+            //getTimeDifference(Timestamp.valueOf(simpleDateFormat.format(IssuedAt)),user.getLastLoginTime());
+            if (getTimeDifference(Timestamp.valueOf(simpleDateFormat.format(IssuedAt)),user.getLastLoginTime())) {
                 return user;
             }
         }
