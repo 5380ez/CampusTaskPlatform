@@ -100,19 +100,24 @@ public class TaskController {
     }
     //查看评论
     @GetMapping("/{task_id}/comment/{page}")
-    public Map<String, Object> commentInformation(@PathVariable("task_id") int taskId, @PathVariable(value = "page") int currentPage)
+    public Map<String, Object> commentInformation(HttpServletRequest request,@PathVariable("task_id") int taskId, @PathVariable(value = "page") int currentPage)
     {
+        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
         IPage<CT> pagedComments;
         pagedComments = commentMapper.selectJoinPage(new Page<>(currentPage, 5),
                 CT.class,
                 new MPJQueryWrapper<Comment>()
-                        .select("t.id","u.avatar_path","t.content", "t.publish_time", "t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id")
-                        .innerJoin("`task` t1 on t.task_id = t1.id")
-                        .innerJoin("`user` u on t.commentator_id = u.id")
-                        .innerJoin("`user` u1 on t.receiver_id = u1.id")
+                        .select("t.id","u.avatar_path","t.content", "t.publish_time", "t.like_num", "u.username as publisherUsername","u1.username as receiverUsername","t.parent_id","c1.is_like as isLike")
+                        .innerJoin("`task` as t1 on t.task_id = t1.id")
+                        .innerJoin("`user` as u on t.commentator_id = u.id")
+                        .innerJoin("`user` as u1 on t.receiver_id = u1.id")
+                        .leftJoin("`comment_like` as c1 on t.id = c1.comment_id AND c1.user_id = "+uid)
                         .eq("t1.id", taskId)
                         .orderByAsc("t.ancestor_publish_time")
                         .orderByAsc("t.publish_time"));
+
+
+
 
         Map<String, Object> result = new HashMap<>();
         result.put("comments", pagedComments.getRecords());
