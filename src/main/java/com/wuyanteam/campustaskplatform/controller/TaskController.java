@@ -428,25 +428,6 @@ public class TaskController {
                     .set("take_time",null)
                     .set("taker_id", null);
 
-            //新增notification记录——》向发布者发送状态变更消息
-            Notification notification = new Notification();
-            notification.setType("task");
-            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
-            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
-            notification.setMessagePublishTime(specificTimeStamp);
-            notification.setMessagePublishTime(specificTimeStamp);
-            notification.setRead(false);
-            notification.setTaskId(taskId);
-            LocalDateTime now = LocalDateTime.now();
-            Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
-            notification.setNotify_time(publishTime);
-            notificationMapper.insert(notification);
-
-            //notification实时通知
-            WsServer wsServer = new WsServer();
-            wsServer.sendMessageToSomeone(task1.getPublisherId()+"|您的订单状态变更为：未接单");
-
-
             boolean result = taskService.update(updateWrapper);
 
             if (result) {
@@ -455,6 +436,26 @@ public class TaskController {
                 HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
                 map.put(takerId,exp);
                 String message;
+
+
+                //新增notification记录——》向发布者发送状态变更消息
+                Notification notification = new Notification();
+                notification.setType("task");
+                LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+                Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setRead(false);
+                notification.setTaskId(taskId);
+                LocalDateTime now = LocalDateTime.now();
+                Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+                notification.setNotify_time(publishTime);
+                notificationMapper.insert(notification);
+
+                //notification实时通知
+                WsServer wsServer = new WsServer();
+                wsServer.sendMessageToSomeone(task1.getPublisherId()+"|您的订单状态变更为：未接单");
+
                 if (flag == 0) {
                     message = "你接受的任务已取消，经验值减5，且当前经验值已经为0";
                 } else {
