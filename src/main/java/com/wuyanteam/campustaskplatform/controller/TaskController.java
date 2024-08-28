@@ -314,16 +314,13 @@ public class TaskController {
     @PostMapping("/{task_id}/delete")
     public Result deleteTask(HttpServletRequest request, @PathVariable("task_id")int taskId)
     {
-        int uid = userService.InfoService(request.getHeader("Authorization")).getId();
+        Integer uid = userService.InfoService(request.getHeader("Authorization")).getId();
         //根据taskId获得任务
         Task task1 = taskService.getById(taskId);
         //Task task = taskMapper.selectById(taskId);
         //获得takerId,再根据takerId增加taker的点赞数
         Integer publisherId = task1.getPublisherId();
         Integer takerId = task1.getTakerId();
-        System.out.println(publisherId);
-        System.out.println(uid);
-        System.out.println(takerId);
         if(publisherId==uid){
             QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("id", taskId);
@@ -344,7 +341,6 @@ public class TaskController {
                         updateEntity.setExp(exp);
                         flag=0;
                     }
-                    System.out.println(exp+"  falg");
                     if(flag==1) {
                         updateEntity.setExp(exp);
                     }
@@ -356,7 +352,6 @@ public class TaskController {
                         HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
                         map.put(publisherId,exp);
                         if(flag==0){
-
                             //新增notification记录——》向接单者发送取消消息
                             Notification notification = new Notification();
                             notification.setType("cancel");
@@ -370,14 +365,11 @@ public class TaskController {
                             Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                             notification.setNotifyTime(publishTime);
                             notificationMapper.insert(notification);
-
                             //notification实时通知
                             WsServer wsServer = new WsServer();
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                             String currentTime = now.format(formatter);
                             wsServer.sendMessageToSomeone(task1.getTakerId()+"|"+currentTime+"您的id为："+taskId+"的任务已被取消，请联系发布者协商");
-
-
                             return  Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
                         }
                         if(flag==1){
@@ -395,14 +387,11 @@ public class TaskController {
                             Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                             notification.setNotifyTime(publishTime);
                             notificationMapper.insert(notification);
-
                             //notification实时通知
                             WsServer wsServer = new WsServer();
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                             String currentTime = now.format(formatter);
                             wsServer.sendMessageToSomeone(task1.getTakerId()+"|"+currentTime+"您的id为："+taskId+"的任务已被取消，请联系发布者协商");
-
-
                             return Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验");
                         }
                     } else {
@@ -415,7 +404,6 @@ public class TaskController {
                 System.out.println("Failed to delete record.");
                 return Result.error("406","删除失败");
             }
-
         }
         if (takerId == uid) {
             User user = userMapper.selectById(takerId);
@@ -435,17 +423,13 @@ public class TaskController {
                     .set("state", "un-taken")
                     .set("take_time",null)
                     .set("taker_id", null);
-
             boolean result = taskService.update(updateWrapper);
-
             if (result) {
                 // 更新用户经验值
                 userMapper.updateById(updateEntity); // 不论flag为何值都更新数据库中的用户信息
                 HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
                 map.put(takerId,exp);
                 String message;
-
-
                 //新增notification记录——》向发布者发送状态变更消息
                 Notification notification = new Notification();
                 notification.setType("task");
@@ -459,23 +443,18 @@ public class TaskController {
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
                 notificationMapper.insert(notification);
-
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String currentTime = now.format(formatter);
                 wsServer.sendMessageToSomeone(task1.getPublisherId()+"|"+currentTime+"您的订单状态变更为：未接单");
-
                 if (flag == 0) {
                     message = "你接受的任务已取消，经验值减5，且当前经验值已经为0";
                 } else {
                     message = "你接受的任务已取消，经验值减5";
                 }
-
-                System.out.println("Record updated successfully.");
                 return Result.success(map,message);
             } else {
-                System.out.println("Failed to update record.");
                 return Result.error("更新失败", "未能成功取消任务");
             }
         }
@@ -500,7 +479,6 @@ public class TaskController {
             int row = taskMapper.update(null,updateWrapper);
             if(row > 0)
             {
-
                 //新增notification记录——》向发布者发送确认送达信息
                 Notification notification = new Notification();
                 notification.setType("task");
@@ -513,14 +491,11 @@ public class TaskController {
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
                 notificationMapper.insert(notification);
-
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String currentTime = now.format(formatter);
                 wsServer.sendMessageToSomeone(task.getPublisherId()+"|"+currentTime+"您id为"+task.getId()+"订单已送达，等待确认，订单金额为："+task.getReward());
-
-
                 return Result.success("已提交完成申请");
             }
             return Result.error("403","提交失败");
@@ -551,7 +526,6 @@ public class TaskController {
             int row = taskMapper.update(null,taskUpdateWrapper);
             if(row > 0)
             {
-
                 //新增notification记录——》向接单者发送确认消息
                 Notification notification = new Notification();
                 notification.setType("complete");
@@ -565,14 +539,11 @@ public class TaskController {
                 Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
                 notification.setNotifyTime(publishTime);
                 notificationMapper.insert(notification);
-
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String currentTime = now.format(formatter);
                 wsServer.sendMessageToSomeone(task.getTakerId()+"|"+currentTime+"您的id为："+task.getId()+"的订单已确认完成，订单金额为："+task.getReward());
-
-
                 return Result.success("已确认任务完成");
             }
             return Result.error("403","确认失败");
@@ -595,7 +566,6 @@ public class TaskController {
             int row = taskMapper.update(null,updateWrapper);
             if(row > 0)
             {
-
                 //新增notification记录——》向接单者发送拒绝确认消息
                 Notification notification = new Notification();
                 notification.setType("reject");
@@ -614,8 +584,6 @@ public class TaskController {
                 //notification实时通知
                 WsServer wsServer = new WsServer();
                 wsServer.sendMessageToSomeone(task.getTakerId()+"|"+currentTime+"您的id为："+task.getId()+"的订单被拒绝确认，请继续配送");
-
-
                 return Result.success("已拒绝任务完成申请，任务将继续");
             }
             return Result.error("403","拒绝失败");
