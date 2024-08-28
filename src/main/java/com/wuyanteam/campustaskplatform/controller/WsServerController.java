@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 //@EnableScheduling
@@ -44,7 +46,7 @@ public class WsServerController {
         List<NTT> notePosting;
         notePosting = notificationMapper.selectJoinList(
                 NTT.class,
-                new MPJQueryWrapper<Notification>().select("c.id as commentId","m.id as messageId","t.task_id as taskId","t.type as type","t.receiver_id as receiverId")
+                new MPJQueryWrapper<Notification>().select("c.id as commentId","m.id as messageId","t.task_id as taskId","t.type as type","t.receiver_id as receiverId","t.notify_time as notifyTime")
                         .leftJoin("`task` t1 on t.task_id = t1.id")
                         .leftJoin("`comment` c on t.comment_publish_time = c.publish_time")
                         .leftJoin("`message` m on t.message_publish_time = m.send_time")
@@ -59,44 +61,54 @@ public class WsServerController {
                 Comment comment = commentMapper.selectById(ntt.getCommentId());
                 User user = userService.getById(comment.getCommentatorId());
                 int myId = userService.InfoService(request.getHeader("Authorization")).getId();
-                String message = myId+"|您收到一条来自用户："+user.getUsername()+",关于任务"+comment.getTaskId()+"的新回复:"+comment.getContent();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String notifyTime = ntt.getNotifyTime().format(formatter);
+                String message = myId+"|"+notifyTime+"您收到一条来自用户："+user.getUsername()+",关于任务"+comment.getTaskId()+"的新回复:"+comment.getContent();
                 wsServer.sendMessageToSomeone(message);
             }else if(ntt.getType().equals("message"))
             {
                 Message message = messageMapper.selectById(ntt.getMessageId());
                 User user = userService.getById(message.getSenderId());
                 int myId = userService.InfoService(request.getHeader("Authorization")).getId();
-                String message1 = myId+"|您收到一条来自用户："+user.getUsername()+"的新消息："+message.getContent();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String notifyTime = ntt.getNotifyTime().format(formatter);
+                String message1 = myId+"|"+notifyTime+"您收到一条来自用户："+user.getUsername()+"的新消息："+message.getContent();
                 wsServer.sendMessageToSomeone(message1);
             }else if(ntt.getType().equals("task"))
             {
                 String message;
                 Task task = taskService.getById(ntt.getTaskId());
                 User user = userService.getById(task.getTakerId());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String notifyTime = ntt.getNotifyTime().format(formatter);
                 switch (task.getState()){
                     case "incomplete":
-                        message = task.getPublisherId()+"|您的订单已被用户："+user.getUsername()+"接单";
+                        message = task.getPublisherId()+"|"+notifyTime+"您的订单已被用户："+user.getUsername()+"接单";
                         break;
                     case "complete":
-                        message = task.getTakerId()+"|您的id为："+task.getId()+"的订单已确认完成，订单金额为："+task.getReward();
+                        message = task.getTakerId()+"|"+notifyTime+"您的id为："+task.getId()+"的订单已确认完成，订单金额为："+task.getReward();
                         break;
                     case "un-taken":
-                        message = task.getPublisherId()+"|您的订单状态变更为：未接单";
+                        message = task.getPublisherId()+"|"+notifyTime+"您的订单状态变更为：未接单";
                         break;
                     case "unconfirmed":
-                        message = task.getPublisherId()+"|您id为"+task.getId()+"订单已送达，等待确认";
+                        message = task.getPublisherId()+"|"+notifyTime+"您id为"+task.getId()+"订单已送达，等待确认";
                     default:
-                        message = task.getPublisherId()+"|您的订单未被接单，请稍等~";
+                        message = task.getPublisherId()+"|"+notifyTime+"您的订单未被接单，请稍等~";
                         break;
                 }
                 wsServer.sendMessageToSomeone(message);
             }else if(ntt.getType().equals("cancel")){
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String notifyTime = ntt.getNotifyTime().format(formatter);
                 Task task = taskService.getById(ntt.getTaskId());
-                String message = task.getTakerId()+"|您的id为："+task.getId()+"的任务已被取消，请联系发布者协商";
+                String message = task.getTakerId()+"|"+notifyTime+"您的id为："+task.getId()+"的任务已被取消，请联系发布者协商";
                 wsServer.sendMessageToSomeone(message);
             }else if(ntt.getType().equals("reject")){
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String notifyTime = ntt.getNotifyTime().format(formatter);
                 Task task = taskService.getById(ntt.getTaskId());
-                String message = task.getTakerId()+"|您的id为："+task.getId()+"的订单被拒绝确认，请继续配送";
+                String message = task.getTakerId()+"|"+notifyTime+"您的id为："+task.getId()+"的订单被拒绝确认，请继续配送";
                 wsServer.sendMessageToSomeone(message);
             }
         }
