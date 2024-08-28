@@ -509,6 +509,7 @@ public class TaskController {
         Task task = taskService.getById(taskId);
         User user = userService.getById(uid);
         int takerId = task.getTakerId();
+        User taker = userService.getById(takerId);
         if(uid == task.getPublisherId())
         {
             if(!Objects.equals(task.getState(), "unconfirmed"))
@@ -520,9 +521,20 @@ public class TaskController {
             UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
             int exp = user.getExp();
             float balance = user.getBalance();
+            exp += 4;
+            balance -= task.getReward();
+            userUpdateWrapper.eq("id",uid).set("exp",exp).set("balance",balance);
+            userMapper.update(user,userUpdateWrapper);
+            exp = taker.getExp();
+            balance = taker.getBalance();
+
             exp += 8;
             balance += task.getReward();
-            userUpdateWrapper.eq("id",takerId).set("exp",exp).set("balance",balance);
+            System.out.println(exp);
+            System.out.println(balance);
+            UpdateWrapper<User> takerUpdateWrapper = new UpdateWrapper<>();
+            takerUpdateWrapper.eq("id",takerId).set("exp",exp).set("balance",balance);
+            userMapper.update(taker,takerUpdateWrapper);
             int row = taskMapper.update(null,taskUpdateWrapper);
             if(row > 0)
             {

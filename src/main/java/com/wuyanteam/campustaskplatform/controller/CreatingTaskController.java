@@ -66,10 +66,6 @@ public class CreatingTaskController {
         }
         int rows = taskMapper.insert(newTask);
         if (rows > 0) {
-            balance -= task.getReward();
-            UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.set("balance",balance);
-            userMapper.update(null,updateWrapper);
             return "Task created successfully.";
         } else {
             return "Failed to create task.";
