@@ -78,51 +78,46 @@ public class BigScreenController {
         data.setFemaleRate(femaleRate);
 
         // 用户总数（一周变化）
-        int[] oneWeekUserNum = new int[7];
+        int todayUserNum ;
         LocalDate now = LocalDate.now();
-        for (int i = 0; i < 7; i++) {
-            LocalDate date = now.minusDays(i);
-            QueryWrapper<User> queryWrapper6 = new QueryWrapper<>();
-            queryWrapper6.between("last_login_time", date.atStartOfDay(), date.plusDays(1).atStartOfDay());
-            oneWeekUserNum[i] = Math.toIntExact(userMapper.selectCount(queryWrapper6));
-        }
-        data.setOneWeekUserNum(oneWeekUserNum); // 假设 BigScreenData 类有一个 setOneWeekUserNum 方法来设置数组
+        LocalDate Date = now.minusDays(0);
+        QueryWrapper<User> queryWrapper6 = new QueryWrapper<>();
+        queryWrapper6.between("last_login_time", Date.atStartOfDay(), Date.plusDays(1).atStartOfDay());
+        todayUserNum = Math.toIntExact(userMapper.selectCount(queryWrapper6));
+        data.setTodayUserNum(todayUserNum);
 
-        // 不同状态任务数（一周变化）
-        int[] untakenNum = new int[7];
-        int[] incompleteNum = new int[7];
-        int[] completeNum = new int[7];
-        int[] timeoutNum = new int[7];
-        int[] unconfirmedNum = new int[7];
+        // 不同状态任务数
+        int untakenNum =0;
+       int incompleteNum =0;
+        int completeNum =0;
+        int timeoutNum =0;
+        int unconfirmedNum=0;
         String[] states = {"un-taken", "incomplete", "complete", "timeout", "unconfirmed"};
-        for (int i = 0; i < 7; i++) {
-            LocalDate date = now.minusDays(i);
-            for (int j = 0; j < states.length; j++) {
-                QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("state", states[j])
-                        .between("publish_time", date.atStartOfDay(), date.plusDays(1).atStartOfDay());
-                switch (states[j]) {
-                    case "un-taken":
-                        untakenNum[i] = Math.toIntExact(taskMapper.selectCount(queryWrapper));
-                        break;
-                    case "incomplete":
-                        incompleteNum[i] = Math.toIntExact(taskMapper.selectCount(queryWrapper));
-                        break;
-                    case "complete":
-                        completeNum[i] = Math.toIntExact(taskMapper.selectCount(queryWrapper));
-                        break;
-                    case "timeout":
-                        timeoutNum[i] = Math.toIntExact(taskMapper.selectCount(queryWrapper));
-                        break;
-                    case "unconfirmed":
-                        unconfirmedNum[i] = Math.toIntExact(taskMapper.selectCount(queryWrapper));
-                        break;
-                    default:
+        for (int j = 0; j < states.length; j++) {
+            QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("state", states[j]);
+            switch (states[j]) {
+                case "un-taken":
+                    untakenNum = Math.toIntExact(taskMapper.selectCount(queryWrapper));
+                    break;
+                case "incomplete":
+                    incompleteNum = Math.toIntExact(taskMapper.selectCount(queryWrapper));
+                    break;
+                case "complete":
+                    completeNum = Math.toIntExact(taskMapper.selectCount(queryWrapper));
+                    break;
+                case "timeout":
+                    timeoutNum = Math.toIntExact(taskMapper.selectCount(queryWrapper));
+                    break;
+                case "unconfirmed":
+                    unconfirmedNum = Math.toIntExact(taskMapper.selectCount(queryWrapper));
+                    break;
+                default:
                         // 不做任何处理
-                        break;
+                    break;
                 }
             }
-        }
+
         data.setUntakenNum(untakenNum);
         data.setIncompleteNum(incompleteNum);
         data.setCompleteNum(completeNum);
@@ -163,6 +158,13 @@ public class BigScreenController {
 
         data.setDailyActiveUsers(dailyActiveUsers); // 假设 BigScreenData 类有一个 setDailyActiveUsers 方法来设置数组
         data.setDailyActiveRates(dailyActiveRates); // 假设 BigScreenData 类有一个 setDailyActiveRates 方法来设置数组
+
+        // 用户总数（当天注册数）
+        int todayRegisterNum ;
+        QueryWrapper<User> queryWrapper9 = new QueryWrapper<>();
+        queryWrapper9.between("acc_crt_time", Date.atStartOfDay(), Date.plusDays(1).atStartOfDay());
+        todayRegisterNum = Math.toIntExact(userMapper.selectCount(queryWrapper9));
+        data.setTodayRegisterNum(todayRegisterNum);
 
 
         return data;
