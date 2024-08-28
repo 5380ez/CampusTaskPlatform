@@ -45,7 +45,7 @@ public class NotificationController
         //QueryWrapper<Notification> queryWrapper = new QueryWrapper<>();
         LambdaQueryWrapper<Notification> queryWrapper = Wrappers.<Notification>lambdaQuery()
                         .eq(Notification::getReceiverId,uid)
-                        .lt(Notification::getNotify_time,currentTime);
+                        .lt(Notification::getNotifyTime,currentTime);
 
         List<Notification> list = notificationMapper.selectList(queryWrapper);
         System.out.println(list);
