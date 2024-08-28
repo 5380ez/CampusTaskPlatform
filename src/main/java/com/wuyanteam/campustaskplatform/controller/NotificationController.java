@@ -25,7 +25,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 @RestController
-//@CrossOrigin //允许该控制器跨域
+@CrossOrigin //允许该控制器跨域
 @RequestMapping("/notification")
 public class NotificationController
 {

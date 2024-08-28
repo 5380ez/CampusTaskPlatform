@@ -26,6 +26,6 @@ public class WebConfig implements WebMvcConfigurer
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //要进行token测试时取消注释即可
-        //registry.addInterceptor(loginInterceptor).excludePathPatterns("/login","/register","/sendEmail/**","/sendEmailRegister/**","/availableTask/**");
+        //registry.addInterceptor(loginInterceptor).excludePathPatterns("/login","/register","/sendEmail/**","/sendEmailRegister/**","/availableTask/**","/myPublishingTask/**","myTakingTask","/task","/message");
     }
 }
