@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.query.MPJQueryWrapper;
+import com.wuyanteam.campustaskplatform.config.WsServer;
 import com.wuyanteam.campustaskplatform.entity.*;
-import com.wuyanteam.campustaskplatform.mapper.CommentLikeMapper;
-import com.wuyanteam.campustaskplatform.mapper.CommentMapper;
-import com.wuyanteam.campustaskplatform.mapper.TaskMapper;
-import com.wuyanteam.campustaskplatform.mapper.UserMapper;
+import com.wuyanteam.campustaskplatform.mapper.*;
 import com.wuyanteam.campustaskplatform.service.CommentService;
 import com.wuyanteam.campustaskplatform.service.TaskService;
 import com.wuyanteam.campustaskplatform.service.UserService;
@@ -40,6 +38,8 @@ public class TaskController {
     private CommentService commentService;
     @Autowired
     private CommentLikeMapper commentLikeMapper;
+    @Autowired
+    private NotificationMapper notificationMapper;
     @GetMapping("/{task_id}")
     public List<UTT> taskInformation(HttpServletRequest request, @PathVariable("task_id") int taskId) {
         // 查询任务信息
@@ -75,6 +75,25 @@ public class TaskController {
         updateWrapper.set("state", "incomplete").set("take_time",Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant())).set("taker_id",uid);
         int row = taskMapper.update(null,updateWrapper);
         if(row > 0) {
+
+            //新增notification记录——》向发布者发送接单消息
+            Notification notification = new Notification();
+            notification.setType("task");
+            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+            notification.setMessagePublishTime(specificTimeStamp);
+            notification.setMessagePublishTime(specificTimeStamp);
+            notification.setRead(false);
+            notification.setTaskId(taskId);
+            Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+            notification.setNotify_time(publishTime);
+
+            //notification实时通知
+            WsServer wsServer = new WsServer();
+            User user = userService.getById(task.getTakerId());
+            wsServer.sendMessageToSomeone(task.getPublisherId()+"|您的订单已被用户："+user.getUsername()+"接单");
+
+
             return Result.success(task, "成功接单！");
         }
         return Result.error("403","接单失败");
@@ -121,6 +140,25 @@ public class TaskController {
         comment.setAncestorPublishTime(publishTime);
         Map<String, Object> result = new HashMap<>();
         if (row > 0) {
+
+            //添加至notification表
+            Notification notification = new Notification();
+            notification.setRead(false);
+            notification.setCommentPublishTime(publishTime);
+            notification.setReceiverId(task.getPublisherId());
+            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+            notification.setMessagePublishTime(specificTimeStamp);
+            notification.setTaskId(0);
+            notification.setType("comment");
+            notification.setNotify_time(publishTime);
+            int row1 = notificationMapper.insert(notification);
+
+            WsServer wsServer = new WsServer();
+            User user = userService.getById(uid);
+            String message = comment.getReceiverId()+"|您收到一条来自用户:"+user.getUsername()+",关于任务"+comment.getTaskId()+"的新回复:"+comment.getContent();
+            wsServer.sendMessageToSomeone(message);
+
             result.put("message", "评论成功！");
             result.put("commentatorId", comment.getCommentatorId()); // 添加评论者ID
         } else {
@@ -147,6 +185,26 @@ public class TaskController {
         comment.setAncestorPublishTime(comment1.getAncestorPublishTime());
         Map<String, Object> result = new HashMap<>();
         if (row > 0) {
+
+            //添加至notification表
+            Notification notification = new Notification();
+            notification.setRead(false);
+            notification.setCommentPublishTime(publishTime);
+            notification.setReceiverId(comment1.getCommentatorId());
+            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+            notification.setMessagePublishTime(specificTimeStamp);
+            notification.setTaskId(0);
+            notification.setNotify_time(publishTime);
+            notification.setType("comment");
+            int row1 = notificationMapper.insert(notification);
+
+            //发送消息提示
+            WsServer wsServer = new WsServer();
+            User user = userService.getById(uid);
+            String message = comment1.getCommentatorId()+"|您收到一条来自用户:"+user.getUsername()+",关于任务"+comment.getTaskId()+"的新回复:"+comment.getContent();
+            wsServer.sendMessageToSomeone(message);
+
             result.put("message", "评论成功！");
             result.put("commentatorId", nestedCommentDTO.getCommentatorId()); // 添加评论者ID
         } else {
@@ -294,6 +352,26 @@ public class TaskController {
                         HashMap<Integer,Integer>map =new HashMap<Integer,Integer>();
                         map.put(publisherId,exp);
                         if(flag==0){
+
+                            //新增notification记录——》向接单者发送取消消息
+                            Notification notification = new Notification();
+                            notification.setType("cancel");
+                            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+                            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+                            notification.setMessagePublishTime(specificTimeStamp);
+                            notification.setMessagePublishTime(specificTimeStamp);
+                            notification.setRead(false);
+                            notification.setTaskId(taskId);
+                            LocalDateTime now = LocalDateTime.now();
+                            Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+                            notification.setNotify_time(publishTime);
+                            notificationMapper.insert(notification);
+
+                            //notification实时通知
+                            WsServer wsServer = new WsServer();
+                            wsServer.sendMessageToSomeone(task1.getTakerId()+"|您的id为："+taskId+"的任务已被取消，请联系发布者协商");
+
+
                             return  Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
                         }
                         if(flag==1){
@@ -329,6 +407,25 @@ public class TaskController {
                     .set("state", "un-taken")
                     .set("take_time",null)
                     .set("taker_id", null);
+
+            //新增notification记录——》向发布者发送状态变更消息
+            Notification notification = new Notification();
+            notification.setType("task");
+            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+            notification.setMessagePublishTime(specificTimeStamp);
+            notification.setMessagePublishTime(specificTimeStamp);
+            notification.setRead(false);
+            notification.setTaskId(taskId);
+            LocalDateTime now = LocalDateTime.now();
+            Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+            notification.setNotify_time(publishTime);
+            notificationMapper.insert(notification);
+
+            //notification实时通知
+            WsServer wsServer = new WsServer();
+            wsServer.sendMessageToSomeone(task1.getPublisherId()+"|您的订单状态变更为：未接单");
+
 
             boolean result = taskService.update(updateWrapper);
 
@@ -372,6 +469,25 @@ public class TaskController {
             int row = taskMapper.update(null,updateWrapper);
             if(row > 0)
             {
+
+                //新增notification记录——》向发布者发送确认送达信息
+                Notification notification = new Notification();
+                notification.setType("task");
+                LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+                Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setRead(false);
+                notification.setTaskId(taskId);
+                Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+                notification.setNotify_time(publishTime);
+                notificationMapper.insert(notification);
+
+                //notification实时通知
+                WsServer wsServer = new WsServer();
+                wsServer.sendMessageToSomeone(task.getPublisherId()+"|您id为"+task.getId()+"订单已送达，等待确认，订单金额为："+task.getReward());
+
+
                 return Result.success("已提交完成申请");
             }
             return Result.error("403","提交失败");
@@ -402,6 +518,26 @@ public class TaskController {
             int row = taskMapper.update(null,taskUpdateWrapper);
             if(row > 0)
             {
+
+                //新增notification记录——》向接单者发送确认消息
+                Notification notification = new Notification();
+                notification.setType("complete");
+                LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+                Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setRead(false);
+                notification.setTaskId(taskId);
+                LocalDateTime now = LocalDateTime.now();
+                Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+                notification.setNotify_time(publishTime);
+                notificationMapper.insert(notification);
+
+                //notification实时通知
+                WsServer wsServer = new WsServer();
+                wsServer.sendMessageToSomeone(task.getTakerId()+"|您的id为："+task.getId()+"的订单已确认完成，订单金额为："+task.getReward());
+
+
                 return Result.success("已确认任务完成");
             }
             return Result.error("403","确认失败");
@@ -424,6 +560,26 @@ public class TaskController {
             int row = taskMapper.update(null,updateWrapper);
             if(row > 0)
             {
+
+                //新增notification记录——》向接单者发送拒绝确认消息
+                Notification notification = new Notification();
+                notification.setType("reject");
+                LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+                Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setMessagePublishTime(specificTimeStamp);
+                notification.setRead(false);
+                notification.setTaskId(taskId);
+                LocalDateTime now = LocalDateTime.now();
+                Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+                notification.setNotify_time(publishTime);
+                notificationMapper.insert(notification);
+
+                //notification实时通知
+                WsServer wsServer = new WsServer();
+                wsServer.sendMessageToSomeone(task.getTakerId()+"|您的id为："+task.getId()+"的订单被拒绝确认，请继续配送");
+
+
                 return Result.success("已拒绝任务完成申请，任务将继续");
             }
             return Result.error("403","拒绝失败");
