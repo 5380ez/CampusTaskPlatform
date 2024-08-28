@@ -375,6 +375,26 @@ public class TaskController {
                             return  Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验，且你的经验值已经为0");
                         }
                         if(flag==1){
+
+                            //新增notification记录——》向接单者发送取消消息
+                            Notification notification = new Notification();
+                            notification.setType("cancel");
+                            LocalDateTime specificDataTime = LocalDateTime.of(2000,1,1,0,0,0);
+                            Timestamp specificTimeStamp = Timestamp.valueOf(specificDataTime);
+                            notification.setMessagePublishTime(specificTimeStamp);
+                            notification.setMessagePublishTime(specificTimeStamp);
+                            notification.setRead(false);
+                            notification.setTaskId(taskId);
+                            LocalDateTime now = LocalDateTime.now();
+                            Timestamp publishTime = Timestamp.from(now.atZone(ZoneId.systemDefault()).toInstant());
+                            notification.setNotify_time(publishTime);
+                            notificationMapper.insert(notification);
+
+                            //notification实时通知
+                            WsServer wsServer = new WsServer();
+                            wsServer.sendMessageToSomeone(task1.getTakerId()+"|您的id为："+taskId+"的任务已被取消，请联系发布者协商");
+
+
                             return Result.success(map,"你发布的任务已删除,但由于删除已接受任务，扣5经验");
                         }
                     } else {
