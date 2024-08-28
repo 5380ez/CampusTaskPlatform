@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
-@EnableScheduling
+//@EnableScheduling
 @Component
 public class TaskScheduler111 {
 
