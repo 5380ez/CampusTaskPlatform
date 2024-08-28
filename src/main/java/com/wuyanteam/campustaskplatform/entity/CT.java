@@ -19,5 +19,5 @@ public class CT {
     String receiverUsername;
     Timestamp ancestorPublishTime;
     String avatarPath;
-    Boolean isLike;
+    boolean isLike;
 }

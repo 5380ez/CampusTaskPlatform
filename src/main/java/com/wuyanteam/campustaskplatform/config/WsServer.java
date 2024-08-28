@@ -87,7 +87,7 @@ public class WsServer{
 
     @OnMessage
     public void getMessage(String message) throws IOException {
-        System.out.println("收到"+":"+message);
+       // System.out.println("收到"+":"+message);
         //接收者
         String receiverId = message.split("[|]")[1];
         //消息
@@ -121,7 +121,7 @@ public class WsServer{
         notification.setMessagePublishTime(publishTime);
         notification.setCommentPublishTime(specificTimeStamp);
         notification.setReceiverId(message.getReceiverId());
-        notification.setNotify_time(publishTime);
+        notification.setNotifyTime(publishTime);
 
         notificationMapper.insert(notification);
         messageMapper.insert(message);
@@ -167,12 +167,13 @@ public class WsServer{
 
 
     public void sendMessage(String message){
-        LocalDateTime now = LocalDateTime.now();
+
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String currentTime = now.format(formatter);
+        //String currentTime = now.format(formatter);
 
         if (this.session != null && this.session.isOpen()) {
-            String message1 = currentTime +"    "+ message;
+            String message1 = "    "+ message;
             this.session.getAsyncRemote().sendText(message1);
             log.info("推送消息给客户端:{}，回复内容为：{}", this.session.getMessageHandlers(), message);
         } else {

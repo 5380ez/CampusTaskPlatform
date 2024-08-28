@@ -21,7 +21,7 @@ public class Notification {
     private int taskId;
     private boolean isRead;
     private String type;
-    private Timestamp notify_time;
+    private Timestamp notifyTime;
 
     public static NotificationMapper notificationMapper;
 }

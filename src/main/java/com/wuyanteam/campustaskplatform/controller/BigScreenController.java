@@ -71,9 +71,8 @@ public class BigScreenController {
             queryWrapper5.eq("sex", sexes[i]);
             sexNum[i] = Math.toIntExact(userMapper.selectCount(queryWrapper5));
         }
-        float sextotal = sexNum[0]+sexNum[1];
-        float maleRate = (float) sexNum[0]/sextotal;
-        float femaleRate = (float) sexNum[1]/sextotal;
+        int maleRate = sexNum[0];
+        int femaleRate = sexNum[1];
         data.setMaleRate(maleRate);
         data.setFemaleRate(femaleRate);
 
