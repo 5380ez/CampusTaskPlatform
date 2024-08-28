@@ -580,7 +580,7 @@ public class TaskController {
                 return Result.error("402","任务状态异常");
             }
             UpdateWrapper<Task> updateWrapper= new UpdateWrapper<>();
-            updateWrapper.eq("id",taskId).set("state","incomplete").set("dueTime",t.getDueTime());
+            updateWrapper.eq("id",taskId).set("state","incomplete").set("due_time",t.getDueTime());
             int row = taskMapper.update(null,updateWrapper);
             if(row > 0)
             {
